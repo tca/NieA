@@ -3,7 +3,7 @@
 (module niea (valid-program? validate-program runtime)
 (import chicken scheme extras (srfi 1))
 (import pat c-expr)
-(import cc hoist)
+(import cc hoist gen-c)
 
 (define (all p l)
   (if (null? l)
@@ -87,7 +87,7 @@
     (valid-program? program)
     ;;(well-scoped? program)
     (print (list filename "is a valid program!"))
-    (for-each print (hoist (perform-cc program)))
+    (for-each print (gen-c (hoist (perform-cc program))))
     ))
 
 (define (runtime)

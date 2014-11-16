@@ -86,7 +86,8 @@
                    (let ((r (lambda (t) (cc-term def env t))))
                      `(if ,(r pred) ,(r then) ,(r else)))))
            (else (let ((r (lambda (t) (cc-term def env t))))
-                   (cons 'invoke-closure (map r t))))))
+                   `(invoke-closure ,(r (car t))
+                                    (args ,(map r (cdr t))))))))
         (else (error "[impossible] Not a valid term" t "inside" def))))
 
 

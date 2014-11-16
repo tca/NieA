@@ -10,9 +10,9 @@
            ((vector-ref env i) => `((vector-ref ,env ,i)))
            ((closure fn env) => (compile-closure fn env))
            ((invoke-closure cls (args args)) =>
-            `((* (struct-ref (* ,cls) fn))
-              (struct-ref (* ,cls) env)
-              . ,(foldl append '() (map gen-c-expr args))))
+            `(((* (array-ref (struct-ref (* ,cls) elt) 0))
+               (struct-ref (* ,cls) env)
+               . ,(foldl append '() (map gen-c-expr args)))))
            (else (error (list "uknown exp: " e)))))
         (else (error (list "uknown exp: " e)))))
 
@@ -21,7 +21,7 @@
   (define sym (gensym "new_env"))
   (define (loop vs i m)
     (if (null? vs)
-        (append `((declare (* scm) ,sym)
+        (append `((declare (* (struct scm)) ,sym)
                   (set! ,sym (allocate_vector ,(+ i 1))))
                 (reverse m))
         (loop (cdr vs) (+ i 1)
@@ -29,9 +29,9 @@
   (append (loop env 0 '()) `((make-closure ,fn ,sym))))
 
 (define (compile-define formals body)
-  (let ((ret-type '(* scm))
+  (let ((ret-type '(* (struct scm)))
         (name (car formals))
-        (args (map (lambda (a) `((* scm) ,a)) (cdr formals)))
+        (args (map (lambda (a) `((* (struct scm)) ,a)) (cdr formals)))
         (refcounting '()))
     `(define (,ret-type ,name . ,args)
        . ,(append (gen-c-expr body)
@@ -44,3 +44,6 @@
 (define (gen-c p)
   (map gen-c-def p))
 )
+
+
+

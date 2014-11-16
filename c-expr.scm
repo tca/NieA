@@ -164,6 +164,7 @@
   (add `+) (sub `-) (mul `*) (div `/)
   (bit-and `&) (bit-or `\|) (bit-xor `^)
   (and `&&) (or `\|\|)
+  (equal `=)
   (less-than `<) (greater-than `>)
   (less-than-or-equal `<=) (greater-than-or-equal `>=))
 
@@ -175,13 +176,15 @@
   (ref `(& ,symbol?))
   (deref `(* ,c-expr?))
   (make-struct `(make-struct (struct ,symbol?) (,symbol? ,c-expr?) ...))
-  (struct-ref `(struct-ref ,c-lvalue? ,c-expr?))
+  (struct-ref `(struct-ref ,c-lvalue? ,symbol?))
+  (array-ref `(array-ref ,c-lvalue? ,c-expr?))
   (procedure-call `(,symbol? ,c-expr? ...)))
 
 (define-language c-lvalue c-lvalue?
   (var symbol?)
   (deref `(* ,c-lvalue?))
-  (array-ref `(array-ref ,symbol? ,c-expr?)))
+  (array-ref `(array-ref ,c-lvalue? ,c-expr?))
+  (struct-ref `(struct-ref ,c-lvalue? ,symbol?)))
 
 ;; Mangling
 
@@ -286,7 +289,8 @@
     (bit-xor => (lambda () (display "^")))
     (and => (lambda () (display "&&")))
     (or => (lambda () (display "||")))
-    
+
+    (equal => (lambda () (display "==")))
     (less-than => (lambda () (display "<")))
     (greater-than => (lambda () (display ">")))
     (less-than-or-equal => (lambda () (display "<=")))
@@ -314,7 +318,7 @@
                 (display e)))
     (deref => (lambda (e)
                 (display "*")
-                (display e)))
+                (display-c-expr e)))
     (make-struct => (lambda (name fields)
                       (display "(struct ") (display-c-symbol name) (display "){ ")
                       (for-each-between (lambda (field-value)
@@ -324,7 +328,12 @@
                                         fields)
                       (display " }")))
     (struct-ref => (lambda (lval field)
-                     (display-c-lvalue lval) (display ".") (display-c-expr field)))
+                     (display-c-lvalue lval) (display ".") (display-c-symbol field)))
+    (array-ref => (lambda (a i)
+                    (display-c-lvalue a)
+                    (display "[")
+                    (display-c-expr i)
+                    (display "]")))
     (procedure-call => display-procedure-call)))
 
 (define (display-procedure-call f args)
@@ -345,10 +354,12 @@
                 (display "*")
                 (display-c-lvalue v)))
     (array-ref => (lambda (a i)
-                    (display-c-symbol a)
+                    (display-c-lvalue a)
                     (display "[")
                     (display-c-expr i)
-                    (display "]")))))
+                    (display "]")))
+    (struct-ref => (lambda (lval field)
+                     (display-c-lvalue lval) (display ".") (display-c-symbol field)))))
 
 (define (display-c-stmt s i)
   (let ((display_ (lambda (s)

@@ -1,0 +1,3 @@
+(define (foo x y z)
+ (y (lambda (e) (x e z))
+    (lambda (e) (y e z))))

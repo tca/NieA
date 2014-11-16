@@ -1,5 +1,5 @@
-(module cc ()
-(import chicken scheme extras (srfi 1))
+(module cc (annotate-free-program)
+(import chicken scheme)
 (import pat sets)
 
 (define (concatenate lists)
@@ -12,8 +12,7 @@
     ((define formals body) =>
      (call-with-values (lambda () (annotate-free-term (car formals) (cdr formals) body))
        (lambda (free term)
-         `(define ,free ,formals ,term)))
-     (error "Invalid definition at toplevel: " formals))
+         `(define ,free ,formals ,term))))
     (else (error (list "[impossible] Not a valid definition at toplevel:" d)))))
 (define (annotate-free-term def scope t)
   (cond ((symbol? t) (values (list t) t))
@@ -45,7 +44,7 @@
                          (lambda (free term)
                            (loop (set-union free frees)
                                  (cons term terms)
-                                 (cdr in-term)))))))))
+                                 (cdr in-terms)))))))))
         (else (error "[impossible] Not a valid term" t "inside" def))))
 
 ;; (define (cc-program t)

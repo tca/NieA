@@ -1,0 +1,10 @@
+
+(struct scheme
+  (int tag)
+  ((union
+    (int x)
+    (float b)
+    ((union (char c) (char d)) j)
+    (float u)
+    (char y)) s))
+   

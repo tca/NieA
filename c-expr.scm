@@ -1,8 +1,12 @@
+(module c-expr (display-c-program)
+(import chicken scheme)
+
 ;;(require-extension syntax-case)
 ;;(require-extension string-utils)
 
 (define first car)
 (define second cadr)
+(define (flatten lists) (apply append lists))
 
 (define (any p l)
   (if (null? l)
@@ -133,6 +137,7 @@
 (define-language c-type c-type?
   (pointer `(* ,c-type?))
   (struct `(struct ,symbol?))
+  (union `(union (,c-type? ,symbol?) ...))
   (void `void)
   (char `char)
   (int `int)
@@ -227,14 +232,14 @@
                  (display "struct ") (display-c-symbol name) (display " {") (newline)
                  (for-each (lambda (field)
                              (display (spaces tabstop))
-                             (display-c-type (first field)) (display " ")
+                             (display-c-type (first field) 0) (display " ")
                              (display-c-symbol (second field)) (display ";") (newline))
                            fields)
                  (display "};") (newline)))
     (definition => (lambda (ret-type name args body)
-                     (display-c-type ret-type) (display " ") (display-c-symbol name) (display "(")
+                     (display-c-type ret-type 0) (display " ") (display-c-symbol name) (display "(")
                      (for-each-between (lambda (sig)
-                                         (display-c-type (first sig))
+                                         (display-c-type (first sig) 0)
                                          (display " ")
                                          (display-c-symbol (second sig)))
                                        (lambda ()
@@ -245,11 +250,21 @@
                      (display "}") (newline)
                      (newline)))))
 
-(define (display-c-type t)
+(define (display-c-type t i)
+  (display (spaces (* i tabstop)))
   (match-language c-type t
     (void => (lambda () (display "void")))
-    (pointer => (lambda (p) (display-c-type p) (display "*")))
+    (pointer => (lambda (p) (display-c-type p i) (display "*")))
     (struct => (lambda (n) (display "struct ") (display-c-symbol n)))
+    (union => (lambda (fields)
+                (display "union {") (newline)
+                (for-each (lambda (field)
+                            (display (spaces (* (+ 1 i) tabstop)))
+                            (display-c-type (first field) (+ i 1)) (display " ")
+                            (display-c-symbol (second field)) (display ";") (newline))
+                          fields)
+                (display (spaces (* (+ 1 i) tabstop)))
+                (display "}")))
     (char => (lambda () (display "char")))
     (int => (lambda () (display "int")))
     (long-long-int => (lambda () (display "long long int")))
@@ -340,7 +355,7 @@
   (match-language c-stmt s
     (begin => (lambda bs (for-each (lambda (b) (display-c-stmt (first b) i)) (first bs))))
     (declare => (lambda (typ name)
-                  (display_ "") (display-c-type typ) (display " ") (display-c-symbol name) (display ";") (newline)))
+                  (display_ "") (display-c-type typ i) (display " ") (display-c-symbol name) (display ";") (newline)))
     (assign => (lambda (lhs rhs)
                  (display_ "")
                  (display-c-lvalue lhs)
@@ -395,8 +410,10 @@
                          (display_ "") (display-procedure-call f args) (display ";")
                          (newline))))))
 
+(define (display-c-program program-code)
+  (for-each display-c-decl program-code))
 
+;; (let ((contents (read-file "ctest/fractal.cexpr")))
+;;   (for-each display-c-decl contents))
 
-
-(let ((contents (read-file "ctest/fractal.cexpr")))
-  (for-each display-c-decl contents))
+)

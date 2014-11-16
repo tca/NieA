@@ -1,10 +1,9 @@
-;; rlwrap csi pat.scm sets.scm cc.scm hoist.scm niea.scm 
+;; rlwrap csi pat.scm sets.scm c-expr.scm cc.scm hoist.scm niea.scm
 
-(module niea (valid-program? validate-program)
+(module niea (valid-program? validate-program runtime)
 (import chicken scheme extras (srfi 1))
-(import pat)
-(import cc)
-(import hoist)
+(import pat c-expr)
+(import cc hoist)
 
 (define (all p l)
   (if (null? l)
@@ -91,5 +90,8 @@
     (for-each print (hoist (perform-cc program)))
     ))
 
+(define (runtime)
+  (let ((runtime-code (read-file "runtime.cexpr")))
+    (display-c-program runtime-code)))
 
 )

@@ -6,11 +6,11 @@
   (set-car! box (cons val (car box))))
 
 (define (gen-c-expr e box)
-  (cond ((symbol? e) (list e))
-        ((number? e) (list e))
+  (cond ((symbol? e) e)
+        ((number? e) e)
         ((list? e)
          (match e
-           ((vector-ref env i) => `((array-ref ,env ,i)))
+           ((vector-ref env i) => `(array-ref ,env ,i))
            ((make-closure fn env) => (compile-closure fn (cdr env) box))
            
 
@@ -22,8 +22,7 @@
            (else (if (and (not (null? e))
                           (symbol? (car e)))
                      (let ((args (map (lambda (x) (gen-c-expr x box)) (cdr e))))
-                       ;; ERROR: this doesn't handle when args are longer than one element
-                       (list `(,(car e) . ,(map car args))))
+                       `(,(car e) . ,args))
                      (error (list "Not a proper functiona pplication" e))))))
         (else (error (list "uknown exp: " e)))))
 
@@ -37,14 +36,14 @@
         (loop (cdr vs) (+ i 1)
               (cons `(set! (array-ref (struct-ref (* ,sym) elt) ,i) ,(car vs)) m))))
   (for-each (lambda (e) (push! box e)) (loop env 0 '()))
-  `((make-closure ,fn ,sym)))
+  `(make-closure ,fn ,sym))
 
 (define (compile-define formals body)
   (let ((ret-type '(* (struct scm)))
         (name (car formals))
         (args (map (lambda (a) `((* (struct scm)) ,a)) (cdr formals)))
         (box (list '())))
-    (let ((body  (gen-c-expr body box))
+    (let ((body (list (gen-c-expr body box)))
           (refcounting '()))
     
     `(define (,ret-type ,name . ,args)

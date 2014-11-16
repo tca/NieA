@@ -7,13 +7,26 @@
         ((number? e) (list e))
         ((list? e)
          (match e
-           ((vector-ref env i) => `((vector_ref ,env ,i)))
-           ((closure fn env) => `((make_closure ,fn ,env)))
-           ((invoke-closure fn (args args)) =>
-            `((invoke_closure ,fn . ,(foldl append '() (map gen-c-expr args)))))
+           ((vector-ref env i) => `((vector-ref ,env ,i)))
+           ((closure fn env) => (compile-closure fn env))
+           ((invoke-closure cls (args args)) =>
+            `((* (struct-ref (* ,cls) fn))
+              (struct-ref (* ,cls) env)
+              . ,(foldl append '() (map gen-c-expr args))))
            (else (error (list "uknown exp: " e)))))
         (else (error (list "uknown exp: " e)))))
 
+
+(define (compile-closure fn env)
+  (define sym (gensym "new_env"))
+  (define (loop vs i m)
+    (if (null? vs)
+        (append `((declare (* scm) ,sym)
+                  (set! ,sym (allocate_vector ,(+ i 1))))
+                (reverse m))
+        (loop (cdr vs) (+ i 1)
+              (cons `(set! (array-ref (struct-ref (* ,sym) elt) ,i) ,(car vs)) m))))
+  (append (loop env 0 '()) `((make-closure ,fn ,sym))))
 
 (define (compile-define formals body)
   (let ((ret-type '(* scm))

@@ -40,7 +40,7 @@
              ;;   ((begin a b) => (and (valid-term? def a)
              ;;                      (valid-term? def b)))
                 ((lambda formals body) => (and (list? formals)
-                                               (= 1 (length formals))
+                                               (>= (length formals) 0)
                                                (valid-term? def body)))
                 ((if pred then else) => (and (valid-term? def pred)
                                              (valid-term? def then)

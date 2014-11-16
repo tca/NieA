@@ -4,6 +4,7 @@
 (import chicken scheme extras (srfi 1))
 (import pat)
 (import cc)
+(import hoist)
 
 (define (all p l)
   (if (null? l)
@@ -87,7 +88,7 @@
     (valid-program? program)
     ;;(well-scoped? program)
     (print (list filename "is a valid program!"))
-    (for-each print (perform-cc program))
+    (for-each print (hoist (perform-cc program)))
     ))
 
 

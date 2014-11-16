@@ -1,0 +1,7 @@
+(fefinition foo)
+
+(define fadsfgd not-valid)
+(define () not-valid)
+(define (mu) ok)
+(define (mu-2 a) ok)
+(define (mu-2 a b c) ok)

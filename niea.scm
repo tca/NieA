@@ -87,7 +87,7 @@
     (valid-program? program)
     ;;(well-scoped? program)
     (print (list filename "is a valid program!"))
-    (for-each print (annotate-free-program program))
+    (for-each print (perform-cc program))
     ))
 
 

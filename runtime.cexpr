@@ -1,0 +1,9 @@
+(union soo
+  (char c)
+  (char d))
+
+(struct scheme
+  (int tag)
+  ((union soo) e)
+  (char y))
+   

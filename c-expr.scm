@@ -144,7 +144,8 @@
   (int `int)
   (long-long-int `long-long-int)
   (float `float)
-  (double `double))
+  (double `double)
+  (type `(type ,symbol?)))
 
 (define-language c-stmt c-stmt?
   (begin `(begin ,c-stmt? ...))
@@ -270,6 +271,7 @@
     (long-long-int => (lambda () (display "long long int")))
     (float => (lambda () (display "float")))
     (double => (lambda () (display "double")))
+    (type => (lambda (t) (display-c-symbol t)))
     ))
 
 (define (display-c-operator o)

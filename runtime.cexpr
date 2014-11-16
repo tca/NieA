@@ -1,9 +1,19 @@
-(union soo
-  (char c)
-  (char d))
+(include "scm_fptr.h")
+;;typedef scm* (*scm_fptr)();
 
-(struct scheme
-  (int tag)
-  ((union soo) e)
-  (char y))
-   
+(struct scm-vector
+  (int len)
+  ((* (* (struct scm))) elt))
+
+(union scm-value
+  (int i) ;; t=0
+  ((struct scm-cons) cons) ;; t=1
+  ((type scm-fptr) f) ;; t=2
+  )
+
+(struct scm
+  (int ref)
+  
+  (int t)
+  ((union scm-value) v))
+

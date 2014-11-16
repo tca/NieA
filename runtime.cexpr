@@ -14,17 +14,17 @@
 (struct scm
   (int ref)
   (int tag)
-  ((union scm-value) v))
+  ((union scm-value) val))
 
 (define (void refcount-dec ((struct scm) s))
   (declare int i)
-  (declare (struct scm-vector) v)
+  (declare (struct scm-vector) val)
   (set! (struct-ref s ref) (- (struct-ref s ref) 1))
   (if (= 0 (struct-ref s ref))
       (begin (if (= 2;; vector
                     (struct-ref s tag))
                  (begin (set! i 0)
-                        (set! v (struct-ref (struct-ref s v) v))
+                        (set! v (struct-ref (struct-ref s val) v))
                         (while (< i (struct-ref v len))
                                (set! i (+ i 1))
                                (refcount-dec (array-ref (struct-ref v elt) i)))

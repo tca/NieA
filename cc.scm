@@ -12,7 +12,7 @@
     ((define formals body) =>
      (call-with-values (lambda () (annotate-free-term (car formals) (cdr formals) body))
        (lambda (free term)
-         `(define ,free ,formals ,term))))
+         `(define ,(set-remove free (cdr formals)) ,formals ,term))))
     (else (error (list "[impossible] Not a valid definition at toplevel:" d)))))
 (define (annotate-free-term def scope t)
   (cond ((symbol? t) (values (list t) t))
@@ -23,7 +23,8 @@
                            (body (caddr t)))
                        (call-with-values (lambda () (annotate-free-term def (append bindings scope) body))
                          (lambda (free body)
-                           (values (set-remove free bindings) `(lambda ,bindings ,body))))))
+                           (let ((frees (set-remove free bindings)))
+                             (values frees `(lambda ,frees ,bindings ,body)))))))
            ((if) (let ((pred (cadr t))
                        (then (caddr t))
                        (else (cadddr t)))

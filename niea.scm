@@ -1,6 +1,9 @@
+;; rlwrap csi pat.scm sets.scm cc.scm niea.scm 
+
 (module niea (valid-program? validate-program)
 (import chicken scheme extras (srfi 1))
 (import pat)
+(import cc)
 
 (define (all p l)
   (if (null? l)
@@ -82,8 +85,10 @@
 (define (validate-program filename)
   (let ((program (read-file filename)))
     (valid-program? program)
-    (well-scoped? program)
-    (print (list filename "is a valid program!"))))
+    ;;(well-scoped? program)
+    (print (list filename "is a valid program!"))
+    (for-each print (annotate-free-program program))
+    ))
 
 
 )

@@ -87,7 +87,7 @@
     (valid-program? program)
     ;;(well-scoped? program)
     (print (list filename "is a valid program!"))
-    (for-each print (gen-c (hoist (perform-cc program))))
+    (pretty-print (gen-c (hoist (perform-cc program))))
     ))
 
 (define (runtime)

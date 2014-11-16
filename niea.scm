@@ -58,17 +58,17 @@
   (set! definitions '())
   (for-each collect-definition exprs)
   definitions)
-(define (check-scope e env)
+(define (check-scope def e env)
   (match e
   ;;  ((begin a b) => (check-scope a env) (check-scope b env))
-    ((if pred then else) => (for-each (lambda (e) (check-scope e env))
+    ((if pred then else) => (for-each (lambda (e) (check-scope def e env))
                                       (cdr e)))
-    ((lambda params body) => (check-scope body (append params env)))
+    ((lambda params body) => (check-scope def body (append params env)))
     (else (cond ((symbol? e)
                  (unless (member e env)
-                    (error (list "Unbound variable: " e))))
+                    (error (list "Unbound variable:" e "in" def))))
                 ((number? e) '())
-                ((list? e) (for-each (lambda (e) (check-scope e env))
+                ((list? e) (for-each (lambda (e) (check-scope def e env))
                                      e))
                 (else #t)))))
 (define (well-scoped? p)
@@ -76,7 +76,7 @@
     (for-each (lambda (d)
                 (match d
                   ((define formals body) => 
-                   (check-scope body (append (cdr formals) defs)))))
+                   (check-scope (car formals) body (append (cdr formals) defs)))))
               p)))
                  
 

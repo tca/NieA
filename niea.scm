@@ -1,4 +1,4 @@
-;; rlwrap csi pat.scm sets.scm cc.scm niea.scm 
+;; rlwrap csi pat.scm sets.scm cc.scm hoist.scm niea.scm 
 
 (module niea (valid-program? validate-program)
 (import chicken scheme extras (srfi 1))

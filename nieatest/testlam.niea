@@ -1,0 +1,4 @@
+(define (foo)
+ (lambda (x)
+  (lambda (z y)
+   (y x z))))

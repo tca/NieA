@@ -38,6 +38,8 @@
                    (valid-term? def (second t)))
               (number? t)
               (match t
+             ;;   ((begin a b) => (and (valid-term? def a)
+             ;;                      (valid-term? def b)))
                 ((lambda formals body) => (and (list? formals)
                                                (= 1 (length formals))
                                                (valid-term? def body)))
@@ -47,8 +49,42 @@
                 (else #f)))
     (error (list "Not a valid term" t "inside" def))))
 
+(define definitions '())
+(define (collect-definition e)
+  (match e
+    ((define formals body) =>
+     (set! definitions (cons (car formals) definitions)))))
+(define (collect-definitions exprs)
+  (set! definitions '())
+  (for-each collect-definition exprs)
+  definitions)
+(define (check-scope e env)
+  (match e
+  ;;  ((begin a b) => (check-scope a env) (check-scope b env))
+    ((if pred then else) => (for-each (lambda (e) (check-scope e env))
+                                      (cdr e)))
+    ((lambda params body) => (check-scope body (append params env)))
+    (else (cond ((symbol? e)
+                 (unless (member e env)
+                    (error (list "Unbound variable: " e))))
+                ((number? e) '())
+                ((list? e) (for-each (lambda (e) (check-scope e env))
+                                     e))
+                (else #t)))))
+(define (well-scoped? p)
+  (let ((defs (collect-definitions p)))
+    (for-each (lambda (d)
+                (match d
+                  ((define formals body) => 
+                   (check-scope body (append (cdr formals) defs)))))
+              p)))
+                 
+
 (define (validate-program filename)
-  (when (valid-program? (read-file filename))
+  (let ((program (read-file filename)))
+    (valid-program? program)
+    (well-scoped? program)
     (print (list filename "is a valid program!"))))
+
 
 )

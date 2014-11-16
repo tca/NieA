@@ -8,6 +8,7 @@
 (define (gen-c-expr e box)
   (cond ((symbol? e) e)
         ((number? e) e)
+        ((string? e) (compile-string e box))
         ((list? e)
          (match e
            ((vector-ref env i) => `(array-ref ,env ,i))
@@ -26,8 +27,8 @@
                      (error (list "Not a proper functiona pplication" e))))))
         (else (error (list "uknown exp: " e)))))
 
-(define (compile-closure fn env box)
-  (define sym (gensym "new-env"))
+
+(define (compile-build-array sym elts box)
   (define (loop vs i m)
     (if (null? vs)
         (append `((declare (* (struct scm)) ,sym)
@@ -35,7 +36,14 @@
                 (reverse m))
         (loop (cdr vs) (+ i 1)
               (cons `(set! (array-ref (struct-ref (* ,sym) elt) ,i) ,(car vs)) m))))
-  (for-each (lambda (e) (push! box e)) (loop env 0 '()))
+  (for-each (lambda (e) (push! box e)) (loop elts 0 '())))
+
+(define (compile-string str box)
+  (compile-build-array (gensym "str") (map char->integer (string->list str)) box))
+
+(define (compile-closure fn env box)
+  (define sym (gensym "new-env"))
+  (compile-build-array sym env box)
   `(make-closure ,fn ,sym))
 
 (define (compile-define formals body)

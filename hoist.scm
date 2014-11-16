@@ -19,6 +19,7 @@
      (hoist-lambda! params (hoist-form body)))
     (else (cond ((symbol? e) e)
                 ((number? e) e)
+                ((string? e) e)
                 ((list? e) (map hoist-form e))))))
 
 (define (hoist p)

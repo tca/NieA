@@ -36,6 +36,7 @@
     (else (error (list "Not a valid definition at toplevel:" d)))))
 (define (valid-term? def t)
   (unless (or (symbol? t)
+              (string? t)
               (and (>= (length t) 1)
                    (all (lambda (tm) (valid-term? def tm)) t))
               (number? t)
@@ -70,6 +71,7 @@
                  (unless (member e env)
                     (error (list "Unbound variable:" e "in" def))))
                 ((number? e) '())
+                ((string? e) '())
                 ((list? e) (for-each (lambda (e) (check-scope def e env))
                                      e))
                 (else #t)))))
@@ -80,12 +82,12 @@
                   ((define formals body) => 
                    (check-scope (car formals) body (append (cdr formals) defs)))))
               p)))
-                 
+
 
 (define (validate-program filename)
   (let ((program (read-file filename)))
     (valid-program? program)
-    ;;(well-scoped? program)
+    (well-scoped? program)
     (print (list filename "is a valid program!"))
     (let* ((hoisted (hoist (perform-cc program)))
            (c-code (gen-c hoisted)))

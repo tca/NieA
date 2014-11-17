@@ -1,6 +1,7 @@
 (module cc (perform-cc)
 (import chicken scheme)
 (import pat sets)
+(import builtins)
 
 (define (list-index elt list)
   (define (list-index* elt list i)
@@ -16,6 +17,7 @@
 
 (define env-variable-name (gensym 'env)) ;; TODO gensym this AFTER reading file in (very important to avoid clashes)
 
+;; Annotate also renames builtins now
 (define (annotate-free-program top-level t)
   (map (lambda (d) (annotate-free-definition top-level d)) t))
 (define (annotate-free-definition top-level d)
@@ -28,9 +30,12 @@
          `(define ,formals ,term))))
     (else (error (list "[impossible annotate] Not a valid definition at toplevel:" d)))))
 (define (annotate-free-term top-level def scope t)
-  (cond ((symbol? t) (if (member t top-level)
-                         (values '() t)
-                         (values (list t) t)))
+  (cond ((symbol? t) (cond ((assoc t builtins) =>
+                            (lambda (found)
+                              (values '() (cdr found))))
+                           ((member t top-level)
+                            (values '() t))
+                           (else (values (list t) t))))
         ((number? t) (values '() t))
         ((string? t) (values '() t))
         ((and (list? t) (not (null? t)))
@@ -91,7 +96,8 @@
                      `(if ,(r pred) ,(r then) ,(r else)))))
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
                    (if (and (symbol? (car t))
-                            (member (car t) top-level))
+                            (or (member (car t) top-level)
+                                (member (car t) (map cdr builtins))))
                        (map r t)
                        (cons 'invoke-closure (map r t)))))))
         (else (error "[impossible] Not a valid term" t "inside" def))))

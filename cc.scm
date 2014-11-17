@@ -95,10 +95,11 @@
                    (let ((r (lambda (t) (cc-term top-level def env t))))
                      `(if ,(r pred) ,(r then) ,(r else)))))
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
-                   (if (and (symbol? (car t))
-                            (or (member (car t) top-level)
-                                (member (car t) (map cdr builtins))))
-                       (cons 'invoke-toplevel (map r t))
+                   (if (symbol? (car t))
+                       (cond ((member (car t) top-level) (cons 'invoke-toplevel (map r t)))
+                             ((member (car t) (map cdr builtins)) (map r t))
+                             (else (cons 'invoke-closure (map r t))))
+                             
                        (cons 'invoke-closure (map r t)))))))
         (else (error "[impossible] Not a valid term" t "inside" def))))
 

@@ -1,9 +1,9 @@
-;; rlwrap csi pat.scm sets.scm c-expr.scm cc.scm hoist.scm gen-c.scm niea.scm
+;; rlwrap csi pat.scm sets.scm builtins.scm c-expr.scm cc.scm hoist.scm gen-c.scm niea.scm
 
 (module niea (valid-program? validate-program runtime)
 (import chicken scheme extras (srfi 1))
 (import pat c-expr)
-(import cc hoist gen-c)
+(import builtins cc hoist gen-c)
 
 (define (all p l)
   (if (null? l)
@@ -21,10 +21,6 @@
 ;;          | (lambda (<symbol>) <term>)
 ;;          | <number>
 ;;          | (if <term> <term> <term>)
-
-(define builtins
-  '(print
-    = +))
 
 ;; Validator with errors
 
@@ -81,7 +77,7 @@
                                      e))
                 (else #t)))))
 (define (well-scoped? p)
-  (let ((defs (append builtins (collect-definitions p))))
+  (let ((defs (append (map car builtins) (collect-definitions p))))
     (for-each (lambda (d)
                 (match d
                   ((define formals body) => 

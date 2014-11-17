@@ -1,7 +1,7 @@
 (define (begin x y) y)
 (define (count i n)
   (if (= i n)
-     (if (= 1 1) 0 420)
+     (if (= 1 1) 0 (lambda (x) 420))
      (begin (print i)
             (count (+ i 1) n))))
 (define (main)

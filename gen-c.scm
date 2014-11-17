@@ -1,6 +1,7 @@
 (module gen-c (gen-c)
 (import chicken scheme)
 (import pat)
+(import builtins)
 
 (define (push! box val)
   (set-car! box (cons val (car box))))
@@ -9,7 +10,8 @@
   (foldl (lambda (m c) `(struct-ref ,m ,c)) val path))
 
 (define (gen-c-expr e box)
-  (cond ((symbol? e) e)
+  (cond ((symbol? e) (cond ((assoc e builtins) => cdr)
+                           (else e)))
         ((number? e) (compile-int e))
         ((string? e) (compile-string e box))
         ((list? e)
@@ -27,7 +29,7 @@
            (else (if (and (not (null? e))
                           (symbol? (car e)))
                      (let ((args (map (lambda (x) (gen-c-expr x box)) (cdr e))))
-                       `(,(car e) . ,args))
+                       `(,(gen-c-expr (car e) box) . ,args))
                      (error (list "Not a proper functiona pplication" e))))))
         (else (error (list "uknown exp: " e)))))
 

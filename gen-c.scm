@@ -10,7 +10,7 @@
 
 (define (gen-c-expr e box)
   (cond ((symbol? e) e)
-        ((number? e) (allocate-int e))
+        ((number? e) (compile-int e))
         ((string? e) (compile-string e box))
         ((list? e)
          (match e
@@ -30,7 +30,7 @@
                      (error (list "Not a proper functiona pplication" e))))))
         (else (error (list "uknown exp: " e)))))
 
-(define (allocate-int i)
+(define (compile-int i)
   `(make-struct (struct scm) (tag 0) (val.i ,i)))
 
 (define (compile-build-array sym elts box)
@@ -54,9 +54,9 @@
   `(make-closure ,fn ,sym))
 
 (define (compile-define formals body)
-  (let ((ret-type '(* (struct scm)))
+  (let ((ret-type '(struct scm))
         (name (car formals))
-        (args (map (lambda (a) `((* (struct scm)) ,a)) (cdr formals)))
+        (args (map (lambda (a) `((struct scm) ,a)) (cdr formals)))
         (box (list '())))
     (let ((body (gen-c-expr body box))
           (refcounting '()))

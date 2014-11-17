@@ -42,7 +42,7 @@
 (define (compile-invoke-closure args box)
   (let ((sym (gensym "fn")))
     (push! box `(declare (type scm-fptr) ,sym))
-    (push! box `(set! ,sym (array-ref (struct->ref ,(struct-ref* (gen-c-expr (car args) box) '(val v)) elt) 0)))
+    (push! box `(set! ,sym ,(struct-ref* `(array-ref (struct->ref ,(struct-ref* (gen-c-expr (car args) box) '(val v)) elt) 0) '(val f))))
     `(,sym . ,(map (lambda (x) (gen-c-expr x box)) args))))
 
 ;; set return variable
@@ -65,17 +65,21 @@
                   (set! ,sym (allocate-vector ,i)))
                 (reverse m))
         (let ((expr `(set! (array-ref (struct->ref ,(struct-ref* sym '(val v)) elt) ,i)
-                           ,(gen-c-expr (car vs) box))))
+                           ,(car vs))))
           (loop (cdr vs) (+ i 1) (cons expr m)))))
   (for-each (lambda (e) (push! box e)) (loop elts 0 '()))
   sym)
 
 (define (compile-string str box)
-  (compile-build-array (gensym "str") (map char->integer (string->list str)) box))
+  (compile-build-array
+   (gensym "str")
+   (map (lambda (e) (gen-c-expr e box)) (map char->integer (string->list str))) box))
 
 (define (compile-closure fn env box)
   (define sym (gensym "new-env"))
-  (compile-build-array sym (cons `(& ,fn) env) box)
+  (compile-build-array
+   sym
+   (cons `(make-struct (struct scm ) (tag 3) (val.f (& ,fn))) env) box)
   `(make-closure ,sym))
 
 (define (compile-body body k)

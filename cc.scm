@@ -51,7 +51,7 @@
                            (call-with-values (lambda () (annotate-free-term top-level def scope else))
                              (lambda (else-free else-term)
                                (values (set-union* (list pred-free then-free else-free))
-                                       `(if pred-term then-term else-term))))))))))
+                                       `(if ,pred-term ,then-term ,else-term))))))))))
            (else (let loop ((frees '())
                             (terms '())
                             (in-terms t))

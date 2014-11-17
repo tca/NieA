@@ -14,6 +14,9 @@
         ((string? e) (compile-string e box))
         ((list? e)
          (match e
+           ((if pred then else) => `(? ,(gen-c-expr pred box)
+                                       ,(gen-c-expr then box)
+                                       ,(gen-c-expr else box)))
            ((vector-ref env i) => `(array-ref ,env ,i))
            ((make-closure fn env) => (compile-closure fn (cdr env) box))
            

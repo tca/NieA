@@ -23,7 +23,8 @@
 ;;          | (if <term> <term> <term>)
 
 (define builtins
-  '(print))
+  '(print
+    = +))
 
 ;; Validator with errors
 
@@ -40,9 +41,10 @@
 (define (valid-term? def t)
   (unless (or (symbol? t)
               (string? t)
-              (and (>= (length t) 1)
-                   (all (lambda (tm) (valid-term? def tm)) t))
               (number? t)
+              (and (list? t)
+                   (>= (length t) 1)
+                   (all (lambda (tm) (valid-term? def tm)) t))
               (match t
              ;;   ((begin a b) => (and (valid-term? def a)
              ;;                      (valid-term? def b)))

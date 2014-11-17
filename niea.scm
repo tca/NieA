@@ -1,6 +1,6 @@
 ;; rlwrap csi pat.scm sets.scm builtins.scm c-expr.scm cc.scm hoist.scm gen-c.scm niea.scm
 
-(module niea (valid-program? validate-program runtime)
+(module niea (valid-program? validate-program compile-program runtime)
 (import chicken scheme extras (srfi 1))
 (import pat c-expr)
 (import builtins cc hoist gen-c)
@@ -99,6 +99,15 @@
         (for-each pretty-print c-code)
         (newline)
         (display ";; c code") (newline)
+        (display-c-program c-code)))
+    ))
+
+(define (compile-program filename)
+   (let ((program (read-file filename)))
+    (valid-program? program)
+    (let ((top-level (well-scoped? program)))
+      (let* ((hoisted (hoist (perform-cc top-level program)))
+             (c-code (gen-c hoisted)))
         (display-c-program c-code)))
     ))
 

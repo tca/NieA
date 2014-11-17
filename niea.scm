@@ -22,6 +22,9 @@
 ;;          | <number>
 ;;          | (if <term> <term> <term>)
 
+(define builtins
+  '(print))
+
 ;; Validator with errors
 
 (define (valid-program? t)
@@ -76,29 +79,29 @@
                                      e))
                 (else #t)))))
 (define (well-scoped? p)
-  (let ((defs (collect-definitions p)))
+  (let ((defs (append builtins (collect-definitions p))))
     (for-each (lambda (d)
                 (match d
                   ((define formals body) => 
                    (check-scope (car formals) body (append (cdr formals) defs)))))
-              p)))
-
+              p)
+    defs))
 
 (define (validate-program filename)
   (let ((program (read-file filename)))
     (valid-program? program)
-    (well-scoped? program)
-    (print (list filename "is a valid program!"))
-    (let* ((hoisted (hoist (perform-cc program)))
-           (c-code (gen-c hoisted)))
-      (display ";; CC and Hoist") (newline)
-      (for-each pretty-print hoisted)
-      (newline)
-      (display ";; c-exprs") (newline)
-      (pretty-print c-code)
-      (newline)
-      (display ";; c code") (newline)
-      (display-c-program c-code))
+    (let ((top-level (well-scoped? program)))
+      (print (list filename "is a valid program!"))
+      (let* ((hoisted (hoist (perform-cc top-level program)))
+             (c-code (gen-c hoisted)))
+        (display ";; CC and Hoist") (newline)
+        (for-each pretty-print hoisted)
+        (newline)
+        (display ";; c-exprs") (newline)
+        (for-each pretty-print c-code)
+        (newline)
+        (display ";; c code") (newline)
+        (display-c-program c-code)))
     ))
 
 (define (runtime)

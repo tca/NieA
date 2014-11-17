@@ -36,7 +36,8 @@
                 (reverse m))
         (loop (cdr vs) (+ i 1)
               (cons `(set! (array-ref (struct-ref (* ,sym) elt) ,i) ,(car vs)) m))))
-  (for-each (lambda (e) (push! box e)) (loop elts 0 '())))
+  (for-each (lambda (e) (push! box e)) (loop elts 0 '()))
+  sym)
 
 (define (compile-string str box)
   (compile-build-array (gensym "str") (map char->integer (string->list str)) box))
@@ -51,12 +52,12 @@
         (name (car formals))
         (args (map (lambda (a) `((* (struct scm)) ,a)) (cdr formals)))
         (box (list '())))
-    (let ((body (list (gen-c-expr body box)))
+    (let ((body (gen-c-expr body box))
           (refcounting '()))
     
     `(define (,ret-type ,name . ,args)
        . ,(append (reverse (car box))
-                  body
+                  (list `(return ,body))
                   refcounting)))))
 
 (define (gen-c-def d)

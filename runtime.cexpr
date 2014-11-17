@@ -3,31 +3,34 @@
 
 (struct scm-vector
   (int len)
+  (int ref)
   ((* (struct scm)) elt))
 
 (union scm-value
+  ;; Immediate values
   (int i) ;; t=0
-  ((struct scm-vector) v) ;; t=1
   ((type scm-fptr) f) ;; t=2
+
+  ;; Allocated values
+  ((* (struct scm-vector)) v) ;; t=1
   )
 
 (struct scm
-  (int ref)
   (int tag)
   ((union scm-value) val))
 
 (define (void refcount-dec ((struct scm) s))
   (declare int i)
-  (declare (struct scm-vector) val)
-  (set! (struct-ref s ref) (- (struct-ref s ref) 1))
-  (if (= 0 (struct-ref s ref))
-      (begin (if (= 2;; vector
-                    (struct-ref s tag))
+  (declare (* (struct scm-vector)) v)
+  (if (= 2 (struct-ref s tag)) ;; vector
+      (begin (set! v (struct-ref (struct-ref s val) v))
+             (set! (struct->ref v ref) (- (struct->ref v ref) 1))
+             (if (= 0 (struct->ref v ref))
                  (begin (set! i 0)
-                        (set! v (struct-ref (struct-ref s val) v))
-                        (while (< i (struct-ref v len))
+                        (while (< i (struct-ref (* v) len))
                                (set! i (+ i 1))
-                               (refcount-dec (array-ref (struct-ref v elt) i)))
-                        (free (struct-ref v elt)))
-                 (begin)))
+                               (refcount-dec (array-ref (struct->ref v elt) i)))
+                        (free (struct->ref v elt)))
+                        (begin)))
       (begin)))
+

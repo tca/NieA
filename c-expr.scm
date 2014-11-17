@@ -177,6 +177,7 @@
   (deref `(* ,c-expr?))
   (make-struct `(make-struct (struct ,symbol?) (,symbol? ,c-expr?) ...))
   (struct-ref `(struct-ref ,c-lvalue? ,symbol?))
+  (struct->ref `(struct->ref ,c-lvalue? ,symbol?))
   (array-ref `(array-ref ,c-lvalue? ,c-expr?))
   (procedure-call `(,symbol? ,c-expr? ...)))
 
@@ -184,7 +185,8 @@
   (var symbol?)
   (deref `(* ,c-lvalue?))
   (array-ref `(array-ref ,c-lvalue? ,c-expr?))
-  (struct-ref `(struct-ref ,c-lvalue? ,symbol?)))
+  (struct-ref `(struct-ref ,c-lvalue? ,symbol?))
+  (struct->ref `(struct->ref ,c-lvalue? ,symbol?)))
 
 ;; Mangling
 
@@ -329,6 +331,8 @@
                       (display " }")))
     (struct-ref => (lambda (lval field)
                      (display-c-lvalue lval) (display ".") (display-c-symbol field)))
+    (struct->ref => (lambda (lval field)
+                     (display-c-lvalue lval) (display "->") (display-c-symbol field)))
     (array-ref => (lambda (a i)
                     (display-c-lvalue a)
                     (display "[")
@@ -359,7 +363,10 @@
                     (display-c-expr i)
                     (display "]")))
     (struct-ref => (lambda (lval field)
-                     (display-c-lvalue lval) (display ".") (display-c-symbol field)))))
+                     (display-c-lvalue lval) (display ".") (display-c-symbol field)))
+    (struct->ref => (lambda (lval field)
+                     (display-c-lvalue lval) (display "->") (display-c-symbol field)))
+    ))
 
 (define (display-c-stmt s i)
   (let ((display_ (lambda (s)

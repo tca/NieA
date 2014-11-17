@@ -467,9 +467,10 @@
                          (display_ "") (display-procedure-call f args) (display ";")
                          (newline))))))
 
-(define (display-c-program program-code)
-  (for-each display-c-prototype program-code)
-  (newline)
+(define (display-c-program prototypes program-code)
+  (when prototypes
+    (for-each display-c-prototype program-code)
+    (newline))
   (for-each display-c-decl program-code))
 
 ;; (let ((contents (read-file "ctest/fractal.cexpr")))

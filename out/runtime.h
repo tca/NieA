@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "scm_fptr.h"
-
 struct scm_vector {
     int len;
     int ref;

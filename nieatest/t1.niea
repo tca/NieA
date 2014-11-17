@@ -1,3 +1,3 @@
-(define (main)
+(define (scm-main)
  (print "Hello world"))
  

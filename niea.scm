@@ -108,11 +108,19 @@
     (let ((top-level (well-scoped? program)))
       (let* ((hoisted (hoist (perform-cc top-level program)))
              (c-code (gen-c hoisted)))
-        (display-c-program c-code)))
+        (display-c-program #f (list `(include "stdio.h")
+                                    `(include "stdlib.h")
+                                    `(include "runtime.h")
+                                    `(include "builtins.h")))
+        (display-c-program #t (append c-code
+                                      (list
+                                       `(define (int main (int argc) ((* (* char)) argv))
+                                          (scm-main (make-struct (struct scm) (tag 0)))
+                                          (return 0)))))))
     ))
 
 (define (runtime)
   (let ((runtime-code (read-file "runtime.cexpr")))
-    (display-c-program runtime-code)))
+    (display-c-program #f runtime-code)))
 
 )

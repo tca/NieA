@@ -72,7 +72,7 @@
     (else (error (list "[impossible cc] Not a valid definition at toplevel:" d)))))
 (define (cc-term top-level def env t)
   (cond ((symbol? t)
-         (cond ((list-index t env) => (lambda (i) `(vector-ref ,env-variable-name ,i)))
+         (cond ((list-index t env) => (lambda (i) `(vector-ref ,env-variable-name ,(+ 1 i))))
                (else t)))
         ((number? t) t)
         ((string? t) t)

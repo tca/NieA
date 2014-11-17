@@ -50,8 +50,8 @@
 
 (define (compile-closure fn env box)
   (define sym (gensym "new-env"))
-  (compile-build-array sym env box)
-  `(make-closure ,fn ,sym))
+  (compile-build-array sym (cons `(& ,fn) env) box)
+  `(make-closure ,sym))
 
 (define (compile-define formals body)
   (let ((ret-type '(struct scm))

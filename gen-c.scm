@@ -14,9 +14,7 @@
         ((string? e) (compile-string e box))
         ((list? e)
          (match e
-           ((if pred then else) => `(? ,(gen-c-expr pred box)
-                                       ,(gen-c-expr then box)
-                                       ,(gen-c-expr else box)))
+           ((if pred then else) => (compile-if pred then else box))
            ((vector-ref env i) => `(array-ref ,env ,i))
            ((make-closure fn env) => (compile-closure fn (cdr env) box))
            
@@ -32,6 +30,16 @@
                        `(,(car e) . ,args))
                      (error (list "Not a proper functiona pplication" e))))))
         (else (error (list "uknown exp: " e)))))
+
+;; set return variable
+(define (compile-if pred then else box)
+  (let ((retsym (gensym "if-result")))
+    (push! box `(declare (struct ,retsym) ,retsym))
+    (push! box
+    `(if ,(gen-c-expr pred box)
+         (begin . ,(compile-body then (lambda (x) `(set! ,retsym ,x))))
+         (begin . ,(compile-body else (lambda (x) `(set! ,retsym ,x))))))
+    retsym))
 
 (define (compile-int i)
   `(make-struct (struct scm) (tag 0) (val.i ,i)))
@@ -56,18 +64,20 @@
   (compile-build-array sym (cons `(& ,fn) env) box)
   `(make-closure ,sym))
 
+(define (compile-body body k)
+  (let ((box (list '())))
+    (let ((c-body (gen-c-expr body box))
+          (refcounting '()))
+      (append (reverse (car box))
+              refcounting
+              (list (k c-body))))))
+
 (define (compile-define formals body)
   (let ((ret-type '(struct scm))
         (name (car formals))
-        (args (map (lambda (a) `((struct scm) ,a)) (cdr formals)))
-        (box (list '())))
-    (let ((body (gen-c-expr body box))
-          (refcounting '()))
-    
+        (args (map (lambda (a) `((struct scm) ,a)) (cdr formals))))
     `(define (,ret-type ,name . ,args)
-       . ,(append (reverse (car box))
-                  (list `(return ,body))
-                  refcounting)))))
+       . ,(compile-body body (lambda (x) `(return ,x))))))
 
 (define (gen-c-def d)
   (match d

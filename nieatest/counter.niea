@@ -1,0 +1,8 @@
+(define (begin x y) y)
+(define (count i n)
+  (if (= i n)
+     (if (= 1 1) 0 420)
+     (begin (print i)
+            (count (+ i 1) n))))
+(define (main)
+ (count 0 100))

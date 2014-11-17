@@ -17,7 +17,7 @@
         ((list? e)
          (match e
            ((if pred then else) => (compile-if pred then else box))
-           ((vector-ref env i) => `(array-ref ,env ,i))
+           ((vector-ref vec i) => (compile-vector-ref vec i box))
            ((make-closure fn env) => (compile-closure fn (cdr env) box))
            (else (cond
                   ((or (null? e) (not (symbol? (car e))))
@@ -28,6 +28,9 @@
                    (compile-invoke-closure  (cdr e) box))
                   (else (compile-application e box))))))
          (else (error (list "uknown exp: " e)))))
+
+(define (compile-vector-ref v i box)
+  `(array-ref (struct->ref ,(struct-ref* (gen-c-expr v box) '(val v)) elt) ,i))
 
 (define (compile-application e box)
   (let ((args (map (lambda (x) (gen-c-expr x box)) (cdr e))))

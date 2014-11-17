@@ -179,7 +179,8 @@
   (struct-ref `(struct-ref ,c-lvalue? ,symbol?))
   (struct->ref `(struct->ref ,c-lvalue? ,symbol?))
   (array-ref `(array-ref ,c-lvalue? ,c-expr?))
-  (procedure-call `(,symbol? ,c-expr? ...)))
+  (procedure-call `(,symbol? ,c-expr? ...))
+  (sizeof `(sizeof ,c-type?)))
 
 (define-language c-lvalue c-lvalue?
   (var symbol?)
@@ -338,7 +339,12 @@
                     (display "[")
                     (display-c-expr i)
                     (display "]")))
-    (procedure-call => display-procedure-call)))
+    (sizeof => (lambda (t)
+                 (display "sizeof(")
+                 (display-c-type t)
+                 (display ")")))
+    (procedure-call => display-procedure-call)
+    ))
 
 (define (display-procedure-call f args)
   (display-c-symbol f)

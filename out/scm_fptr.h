@@ -1,1 +1,1 @@
-typedef struct scm* (*scm_fptr)();
+typedef struct scm (*scm_fptr)();

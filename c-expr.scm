@@ -231,6 +231,21 @@
                  (comma)
                  (for-each-between f comma (cdr list))))))
 
+(define (display-c-prototype d)
+  (match-language c-decl d
+    (include => (lambda (filename) #f))
+    (struct => (lambda (name fields) #f))
+    (union => (lambda (name fields) #f))
+    (definition => (lambda (ret-type name args body)
+                     (display-c-type ret-type) (display " ") (display-c-symbol name) (display "(")
+                     (for-each-between (lambda (sig)
+                                         (display-c-type (first sig)))
+                                       (lambda ()
+                                         (display ", "))
+                                       args)
+                     (display ");")
+                     (newline)))))
+
 (define (display-c-decl d)
   (match-language c-decl d
     (include => (lambda (filename)
@@ -453,9 +468,10 @@
                          (newline))))))
 
 (define (display-c-program program-code)
+  (for-each display-c-prototype program-code)
+  (newline)
   (for-each display-c-decl program-code))
 
 ;; (let ((contents (read-file "ctest/fractal.cexpr")))
 ;;   (for-each display-c-decl contents))
-
 )

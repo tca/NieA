@@ -31,15 +31,15 @@
         (else (error (list "uknown exp: " e)))))
 
 (define (allocate-int i)
-  `(make-struct (struct scm) (ref 1) (tag 0) (val.i ,i)))
+  `(make-struct (struct scm) (tag 0) (val.i ,i)))
 
 (define (compile-build-array sym elts box)
   (define (loop vs i m)
     (if (null? vs)
-        (append `((declare (* (struct scm)) ,sym)
+        (append `((declare (struct scm) ,sym)
                   (set! ,sym (allocate-vector ,i)))
                 (reverse m))
-        (let ((expr `(set! (array-ref ,(struct-ref* `(* ,sym) '(val v elt)) ,i)
+        (let ((expr `(set! (array-ref (struct->ref ,(struct-ref* sym '(val v)) elt) ,i)
                            ,(gen-c-expr (car vs) box))))
           (loop (cdr vs) (+ i 1) (cons expr m)))))
   (for-each (lambda (e) (push! box e)) (loop elts 0 '()))

@@ -27,7 +27,7 @@
              (set! (struct->ref v ref) (- (struct->ref v ref) 1))
              (if (= 0 (struct->ref v ref))
                  (begin (set! i 0)
-                        (while (< i (struct-ref (* v) len))
+                        (while (< i (struct->ref v len))
                                (set! i (+ i 1))
                                (refcount-dec (array-ref (struct->ref v elt) i)))
                         (free (struct->ref v elt)))

@@ -22,22 +22,25 @@
            (else (cond
                   ((or (null? e) (not (symbol? (car e))))
                    (error (list "Not a proper functiona pplication" e)))
+                  ((equal? 'invoke-toplevel (car e))
+                   (compile-invoke-toplevel  (cdr e) box))
                   ((equal? 'invoke-closure (car e))
                    (compile-invoke-closure  (cdr e) box))
                   (else (compile-application e box))))))
          (else (error (list "uknown exp: " e)))))
 
-;; need two cases: builtin and top-level
-;; top-level needs to be passed an empty environment
 (define (compile-application e box)
   (let ((args (map (lambda (x) (gen-c-expr x box)) (cdr e))))
     `(,(gen-c-expr (car e) box) . ,args)))
+
+(define (compile-invoke-toplevel args box)
+  `(,(car args) (make-closure (allocate-vector 0)) . ,(map (lambda (x) (gen-c-expr x box)) (cdr args))))
 
 (define (compile-invoke-closure args box)
   (let ((sym (gensym "fn")))
     (push! box `(declare (type scm-fptr) ,sym))
     (push! box `(set! ,sym (array-ref (struct->ref ,(struct-ref* (gen-c-expr (car args) box) '(val v)) elt) 0)))
-    `(,sym . ,(map (lambda (x) (gen-c-expr x box)) (cdr args)))))
+    `(,sym . ,(map (lambda (x) (gen-c-expr x box)) args))))
 
 ;; set return variable
 (define (compile-if pred then else box)

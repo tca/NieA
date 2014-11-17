@@ -98,7 +98,7 @@
                    (if (and (symbol? (car t))
                             (or (member (car t) top-level)
                                 (member (car t) (map cdr builtins))))
-                       (map r t)
+                       (cons 'invoke-toplevel (map r t))
                        (cons 'invoke-closure (map r t)))))))
         (else (error "[impossible] Not a valid term" t "inside" def))))
 

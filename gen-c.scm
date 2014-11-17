@@ -5,9 +5,12 @@
 (define (push! box val)
   (set-car! box (cons val (car box))))
 
+(define (struct-ref* val path)
+  (foldl (lambda (m c) `(struct-ref ,m ,c)) val path))
+
 (define (gen-c-expr e box)
   (cond ((symbol? e) e)
-        ((number? e) e)
+        ((number? e) (allocate-int e))
         ((string? e) (compile-string e box))
         ((list? e)
          (match e
@@ -27,6 +30,8 @@
                      (error (list "Not a proper functiona pplication" e))))))
         (else (error (list "uknown exp: " e)))))
 
+(define (allocate-int i)
+  `(make-struct (struct scm) (ref 1) (tag 0) (val.i ,i)))
 
 (define (compile-build-array sym elts box)
   (define (loop vs i m)
@@ -34,8 +39,9 @@
         (append `((declare (* (struct scm)) ,sym)
                   (set! ,sym (allocate-vector ,i)))
                 (reverse m))
-        (loop (cdr vs) (+ i 1)
-              (cons `(set! (array-ref (struct-ref (* ,sym) elt) ,i) ,(car vs)) m))))
+        (let ((expr `(set! (array-ref ,(struct-ref* `(* ,sym) '(val v elt)) ,i)
+                           ,(gen-c-expr (car vs) box))))
+          (loop (cdr vs) (+ i 1) (cons expr m)))))
   (for-each (lambda (e) (push! box e)) (loop elts 0 '()))
   sym)
 

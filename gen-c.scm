@@ -34,7 +34,7 @@
 ;; set return variable
 (define (compile-if pred then else box)
   (let ((retsym (gensym "if-result")))
-    (push! box `(declare (struct ,retsym) ,retsym))
+    (push! box `(declare (struct scm) ,retsym))
     (push! box
     `(if ,(gen-c-expr pred box)
          (begin . ,(compile-body then (lambda (x) `(set! ,retsym ,x))))

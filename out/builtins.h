@@ -17,3 +17,18 @@ struct scm scm_print(struct scm a) {
     putchar('?');
   }
 }
+
+struct scm scm_plus(struct scm a, struct scm b) {
+  assert (a.tag == 0);
+  assert (b.tag == 0);
+  return (struct scm){ .tag = 0, .val.i = a.val.i + b.val.i };
+}
+
+struct scm scm_eq(struct scm a, struct scm b) {
+  if(a.tag == 0 && b.tag == 0) {
+    return (struct scm){ .tag = 0, .val.i = (a.val.i == b.val.i) };
+  }
+  else {
+    return (struct scm){ .tag = 0, .val.i = 0 };
+  }
+}

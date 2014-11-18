@@ -41,3 +41,8 @@ struct scm allocate_vector(int len) {
     return (struct scm){ .tag = 1, .val.v = v };
 }
 
+struct scm make_closure(struct scm c) {
+    c.tag = 3;
+    return c;
+}
+

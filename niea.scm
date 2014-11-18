@@ -99,7 +99,7 @@
         (for-each pretty-print c-code)
         (newline)
         (display ";; c code") (newline)
-        (display-c-program c-code)))
+        (display-c-program #f c-code)))
     ))
 
 (define (compile-program filename)
@@ -110,6 +110,7 @@
              (c-code (gen-c hoisted)))
         (display-c-program #f (list `(include "stdio.h")
                                     `(include "stdlib.h")
+                                    `(include "assert.h")
                                     `(include "runtime.h")
                                     `(include "builtins.h")))
         (display-c-program #t (append c-code

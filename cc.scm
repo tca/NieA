@@ -32,7 +32,7 @@
 (define (annotate-free-term top-level def scope t)
   (cond ((symbol? t) (cond ((assoc t builtins) =>
                             (lambda (found)
-                              (values '() (cdr found))))
+                              (values '() (cadddr found))))
                            ((member t top-level)
                             (values '() t))
                            (else (values (list t) t))))
@@ -97,7 +97,7 @@
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
                    (if (symbol? (car t))
                        (cond ((member (car t) top-level) (cons 'invoke-toplevel (map r t)))
-                             ((member (car t) (map cdr builtins)) (map r t))
+                             ((member (car t) (map cadddr builtins)) (map r t))
                              (else (cons 'invoke-closure (map r t))))
                              
                        (cons 'invoke-closure (map r t)))))))
@@ -105,8 +105,9 @@
 
 
 (define (perform-cc top-level program)
-  (set! env-variable-name (gensym 'env))
-  (cc-program top-level (annotate-free-program top-level program)))
+  (let ((program (append builtin-wrappers program)))
+    (set! env-variable-name (gensym 'env))
+    (cc-program top-level (annotate-free-program top-level program))))
 
 
 )

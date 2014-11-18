@@ -1,6 +1,7 @@
 (module hoist (hoist)
 (import chicken scheme)
 (import pat)
+(import builtins)
 
 (define hoisted '())
 (define (hoist-lambda! params body)

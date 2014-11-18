@@ -9,8 +9,16 @@
 (define (struct-ref* val path)
   (foldl (lambda (m c) `(struct-ref ,m ,c)) val path))
 
+
+(define (anfize e box)
+  (let ((rsym (gensym "cls")))
+    (push! box `(declare (struct scm) ,rsym))
+    (push! box `(set! ,rsym ,e))
+    rsym))
+
 (define (gen-c-expr e box)
-  (cond ((symbol? e) (cond ((assoc e builtins) => cdr)
+  (cond ((symbol? e) (cond ((assoc e builtin-gensyms) =>
+                            (lambda (e) (compile-passed-builtin (cdr e) box)))
                            (else e)))
         ((number? e) (compile-int e))
         ((string? e) (compile-string e box))
@@ -23,27 +31,30 @@
                   ((or (null? e) (not (symbol? (car e))))
                    (error (list "Not a proper functiona pplication" e)))
                   ((equal? 'invoke-toplevel (car e))
-                   (compile-invoke-toplevel  (cdr e) box))
+                   (anfize (compile-invoke-toplevel  (cdr e) box) box))
                   ((equal? 'invoke-closure (car e))
-                   (compile-invoke-closure  (cdr e) box))
-                  (else (compile-application e box))))))
+                    (anfize (compile-invoke-closure  (cdr e) box) box))
+                  (else  (anfize (compile-application e box) box))))))
          (else (error (list "uknown exp: " e)))))
 
+(define (compile-passed-builtin e box)
+  (compile-closure e '() box))
+           
 (define (compile-vector-ref v i box)
   `(array-ref (struct->ref ,(struct-ref* (gen-c-expr v box) '(val v)) elt) ,i))
 
 (define (compile-application e box)
   (let ((args (map (lambda (x) (gen-c-expr x box)) (cdr e))))
-    `(,(gen-c-expr (car e) box) . ,args)))
+    `(,(car e) . ,args)))
 
 (define (compile-invoke-toplevel args box)
-  `(,(car args) (make-closure (allocate-vector 0)) . ,(map (lambda (x) (gen-c-expr x box)) (cdr args))))
+  `(,(car args) (make-closure (allocate-vector 0))   . ,(map (lambda (x) (gen-c-expr x box)) (cdr args))))
 
 (define (compile-invoke-closure args box)
   (let ((sym (gensym "fn")))
     (push! box `(declare (type scm-fptr) ,sym))
     (push! box `(set! ,sym
-                      (struct->ref (struct-ref (array-ref (struct->ref ,(struct-ref* (gen-c-expr (car args) box) '(val v)) elt) 0) val) f)))
+                      (struct-ref (struct-ref (array-ref (struct->ref ,(struct-ref* (gen-c-expr (car args) box) '(val v)) elt) 0) val) f)))
     `(,sym . ,(map (lambda (x) (gen-c-expr x box)) args))))
 
 ;; set return variable
@@ -81,7 +92,7 @@
   (define rsym (gensym "cls"))
   (compile-build-array
    sym
-   (cons `(make-struct (struct scm) (tag 3) (val.f (& ,fn))) env) box)
+   (cons `(make-struct (struct scm) (tag 1) (val.f ,fn)) env) box)
   (push! box `(declare (struct scm) ,rsym))
   (push! box `(set! ,rsym (make-closure ,sym)))
   rsym)

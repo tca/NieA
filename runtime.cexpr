@@ -43,3 +43,6 @@
   (set! (struct->ref v elt) (malloc (* (sizeof (struct scm)) len)))
   (return (make-struct (struct scm) (tag 1) (val.v v))))
 
+(define ((struct scm) make-closure ((struct scm) c))
+  (set! (struct-ref c tag) 3)
+  (return c))

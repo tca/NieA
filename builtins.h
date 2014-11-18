@@ -18,6 +18,13 @@ struct scm scm_print(struct scm a) {
   }
 }
 
+int scm_extract_truth(struct scm x) {
+  if(x.tag == 0)
+    if(x.val.i == 0)
+      return 0;
+  return 1;
+}
+
 struct scm scm_plus(struct scm a, struct scm b) {
   assert(a.tag == 0);
   assert(b.tag == 0);

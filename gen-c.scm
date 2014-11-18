@@ -62,9 +62,9 @@
   (let ((retsym (gensym "if-result")))
     (push! box `(declare (struct scm) ,retsym))
     (push! box
-    `(if ,(gen-c-expr pred box)
-         (begin . ,(compile-body then (lambda (x) `(set! ,retsym ,x))))
-         (begin . ,(compile-body else (lambda (x) `(set! ,retsym ,x))))))
+           `(if (scm-extract-truth ,(gen-c-expr pred box))
+                (begin . ,(compile-body then (lambda (x) `(set! ,retsym ,x))))
+                (begin . ,(compile-body else (lambda (x) `(set! ,retsym ,x))))))
     retsym))
 
 (define (compile-int i)

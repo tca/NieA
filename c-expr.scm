@@ -171,6 +171,7 @@
 (define-language c-expr c-expr?
   (var symbol?)
   (num number?)
+  (char char?)
   (str string?)
   (op `(,c-operator? ,c-expr? ,c-expr?))
   (ref `(& ,symbol?))
@@ -198,6 +199,7 @@
                   (case khar
                     ((#\\) (list #\\ #\\))
                     ((#\") (list #\\ #\"))
+                    ((#\newline) (list #\\ #\n))
                     (else (list khar))))))
     (list->string (append (list #\")
                           (flatten (map  escape (string->list s)))
@@ -323,6 +325,8 @@
               (display-c-symbol s)))
     (num => (lambda (n)
               (display n)))
+    (char => (lambda (n)
+               (display "'") (display n) (display "'")))
     (str => (lambda (s)
               (display (quoted-string s))))
     (op => (lambda (o p q)

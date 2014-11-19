@@ -21,14 +21,14 @@
      0))
 
 (define (stuff)
- (cons (cons #\h #\w)
-  (cons (cons #\e #\o)
-   (cons (cons #\l #\r)
-    (cons (cons #\l #\l)
-     (cons (cons #\o #\d)
+ (cons (cons "h" "w")
+  (cons (cons "e" "o")
+   (cons (cons "l" "r")
+    (cons (cons "l" "l")
+     (cons (cons "o" "d")
             0))))))
 
 (define (scm-main)
- (begin (print-each (map car stuff))
-        (print-each (map cdr stuff))))
+ (begin (print-each (map car (stuff)))
+        (print-each (map cdr (stuff)))))
 

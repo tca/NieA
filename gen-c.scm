@@ -3,6 +3,8 @@
 (import pat)
 (import builtins)
 
+(define top-level '())
+
 (define (push! box val)
   (set-car! box (cons val (car box))))
 
@@ -19,6 +21,7 @@
 (define (gen-c-expr e box)
   (cond ((symbol? e) (cond ((assoc e builtin-gensyms) =>
                             (lambda (e) (compile-passed-builtin (cdr e) box)))
+                           ((member e top-level) (compile-passed-builtin e box))
                            (else e)))
         ((number? e) (compile-int e))
         ((string? e) (compile-string e box))
@@ -117,6 +120,7 @@
   (match d
     ((define formals body) => (compile-define formals body))))
 
-(define (gen-c p)
+(define (gen-c top-level1 p)
+  (set! top-level top-level1)
   (map gen-c-def p))
 )

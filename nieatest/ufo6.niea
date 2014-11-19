@@ -1,17 +1,19 @@
 (define (scm-main)
   (print (church-num (mul (add (three) (two)) (num-church 5)))))
 
-
 (define (church-num n)
   (n 0 (lambda (i) (+ 1 i))))
 
+(define (begin a b) b)
+
 (define (num-church n)
-  ((lambda (aux) (aux 0 0))
+  ((lambda (aux) (aux aux 0 (zero)))
    (lambda (f i c)
      (if (= i n)
          c
          (f f (+ 1 i) (add (one) c))))))
 
+(define (zero) (lambda (z s)  z))
 (define (one) (lambda (z s) (s z)))
 (define (two) (lambda (z s) (s (s z))))
 (define (three) (lambda (z s) (s (s (s z)))))

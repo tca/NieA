@@ -34,9 +34,63 @@ struct scm scm_plus(struct scm a, struct scm b) {
   return (struct scm){ .tag = 0, .val.i = a.val.i + b.val.i };
 }
 
+struct scm scm_minus(struct scm a, struct scm b) {
+  assert(a.tag == 0);
+  assert(b.tag == 0);
+  return (struct scm){ .tag = 0, .val.i = a.val.i - b.val.i };
+}
+
+struct scm scm_multiply(struct scm a, struct scm b) {
+  assert(a.tag == 0);
+  assert(b.tag == 0);
+  return (struct scm){ .tag = 0, .val.i = a.val.i * b.val.i };
+}
+
+struct scm scm_divide(struct scm a, struct scm b) {
+  assert(a.tag == 0);
+  assert(b.tag == 0);
+  return (struct scm){ .tag = 0, .val.i = a.val.i / b.val.i };
+}
+
 struct scm scm_eq(struct scm a, struct scm b) {
   if(a.tag == 0 && b.tag == 0) {
     return (struct scm){ .tag = 0, .val.i = (a.val.i == b.val.i) };
+  }
+  else {
+    return (struct scm){ .tag = 0, .val.i = 0 };
+  }
+}
+
+struct scm scm_gt(struct scm a, struct scm b) {
+  if(a.tag == 0 && b.tag == 0) {
+    return (struct scm){ .tag = 0, .val.i = (a.val.i > b.val.i) };
+  }
+  else {
+    return (struct scm){ .tag = 0, .val.i = 0 };
+  }
+}
+
+struct scm scm_lt(struct scm a, struct scm b) {
+  if(a.tag == 0 && b.tag == 0) {
+    return (struct scm){ .tag = 0, .val.i = (a.val.i < b.val.i) };
+  }
+  else {
+    return (struct scm){ .tag = 0, .val.i = 0 };
+  }
+}
+
+struct scm scm_gteq(struct scm a, struct scm b) {
+  if(a.tag == 0 && b.tag == 0) {
+    return (struct scm){ .tag = 0, .val.i = (a.val.i >= b.val.i) };
+  }
+  else {
+    return (struct scm){ .tag = 0, .val.i = 0 };
+  }
+}
+
+struct scm scm_lteq(struct scm a, struct scm b) {
+  if(a.tag == 0 && b.tag == 0) {
+    return (struct scm){ .tag = 0, .val.i = (a.val.i <= b.val.i) };
   }
   else {
     return (struct scm){ .tag = 0, .val.i = 0 };

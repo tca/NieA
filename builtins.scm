@@ -4,7 +4,14 @@
 (define builtins1
   '((print (x) . scm-print)
     (= (x y) . scm-eq)
-    (+ (x y) . scm-plus)))
+    (>= (x y) . scm-gteq)
+    (<= (x y) . scm-lteq)
+    (> (x y) . scm-gt)
+    (< (x y) . scm-lt)
+    (+ (x y) . scm-plus)
+    (- (x y) . scm-minus)
+    (* (x y) . scm-multiply)
+    (/ (x y) . scm-divide)))
 
 (define builtins (map (lambda (b) (list (car b) (map gensym (cadr b)) (gensym (cddr b)) (cddr b))) builtins1))
 

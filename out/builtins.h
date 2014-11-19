@@ -1,7 +1,10 @@
 struct scm scm_print(struct scm a) {
   int i, l;
   struct scm *elt;
-  if(a.tag == 1) {
+  if(a.tag == 0) {
+    printf("%d\n", a.val.i);
+  }
+  else if(a.tag == 1) {
     l = a.val.v->len;
     elt = a.val.v->elt;
     for(i = 0; i < l; i++) {

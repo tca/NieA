@@ -1,6 +1,6 @@
-(define (cons car cdr)
+(define (cons x y)
  (lambda (selector)
-  (selector car cdr)))
+  (selector x y)))
 (define (car c)
  (c (lambda (x y) x)))
 (define (cdr c)

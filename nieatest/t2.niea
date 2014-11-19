@@ -1,0 +1,2 @@
+(define (scm-main)
+ (print 1729))

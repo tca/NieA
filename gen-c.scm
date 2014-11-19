@@ -34,6 +34,8 @@
            (else (cond
                   ((or (null? e) (not (symbol? (car e))))
                    (error (list "Not a proper functiona pplication" e)))
+                  ((equal? 'invoke-builtin (car e))
+                   (anfize (compile-invoke-builtin  (cdr e) box) box))
                   ((equal? 'invoke-toplevel (car e))
                    (anfize (compile-invoke-toplevel  (cdr e) box) box))
                   ((equal? 'invoke-closure (car e))
@@ -50,6 +52,11 @@
 (define (compile-application e box)
   (let ((args (map (lambda (x) (gen-c-expr x box)) (cdr e))))
     `(,(car e) . ,args)))
+
+;; compile without symbol conversions?
+;; inline?
+(define (compile-invoke-builtin args box)
+  `(,(car args)  . ,(map (lambda (x) (gen-c-expr x box)) (cdr args))))
 
 (define (compile-invoke-toplevel args box)
   `(,(car args) (make-closure (allocate-vector 0))   . ,(map (lambda (x) (gen-c-expr x box)) (cdr args))))

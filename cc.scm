@@ -99,7 +99,7 @@
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
                    (if (symbol? (car t))
                        (cond ((member (car t) top-level) (cons 'invoke-toplevel (map r t)))
-                             ((member (car t) (map cadddr builtins)) (map r t))
+                             ((member (car t) (map cadddr builtins)) (cons 'invoke-builtin (map r t)))
                              (else (cons 'invoke-closure (map r t))))
                              
                        (cons 'invoke-closure (map r t)))))))

@@ -6,7 +6,7 @@
     (= (x y) . scm-eq)
     (+ (x y) . scm-plus)))
 
-(define builtins (map (lambda (b) (list (car b) (cadr b) (gensym (cddr b)) (cddr b))) builtins1))
+(define builtins (map (lambda (b) (list (car b) (map gensym (cadr b)) (gensym (cddr b)) (cddr b))) builtins1))
 
 (define builtin-gensyms (map (lambda (b) (cons  (cadddr b) (caddr b))) builtins))
 

@@ -1,0 +1,8 @@
+(define (scm-main)
+  ((one) 0 (lambda (i) (print "i"))))
+
+(define (one) (lambda (z s) (s z)))
+(define (two) (lambda (z s) (s (s z))))
+(define (three) (lambda (z s) (s (s (s z)))))
+(define (add x y) (lambda (z s) (y (x z s) s)))
+(define (mul x y) (lambda (z s) (x z (lambda (z) (y z s)))))

@@ -1,5 +1,5 @@
 (define (scm-main)
-  ((one) 0 (lambda (i) (print "i"))))
+  ((mul (add (three) (two)) (three)) 0 (lambda (i) (print "i"))))
 
 (define (one) (lambda (z s) (s z)))
 (define (two) (lambda (z s) (s (s z))))

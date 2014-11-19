@@ -1,0 +1,4 @@
+(define (foo foo)
+  (foo foo))
+(define (scm-main)
+  (foo (lambda (x) (print "end"))))

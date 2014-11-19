@@ -1,0 +1,13 @@
+(define (scm-main)
+  ((y (lambda (f)
+        (lambda (n)
+          (if (= n 20000)
+              0
+              (begin (print "y") (f (+ n 1))))))) 0))
+
+(define (begin a b) b)
+
+(define (y f)
+  ((lambda (x) (x x))
+   (lambda (g)
+     (f (lambda (arg) ((g g) arg))))))

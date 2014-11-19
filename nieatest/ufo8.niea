@@ -1,0 +1,30 @@
+(define (scm-main)
+  (begin (begin10
+          (print 1)
+          (print (= 1 1))
+          (print #\c)
+          (print "s")
+          (print (lambda (x) x))
+          (print begin)
+          (print print)
+          0
+          0
+          0)
+         (begin10
+          (1)
+          ((= 1 1))
+          (#\c)
+          ("s")
+          ((lambda () 1))
+          (begin 1 1)
+          (print 1)
+          0
+          0
+          0
+          )))
+
+(define (begin a b) b)
+(define (begin10 a b c d e f g h i j)
+  (begin a (begin b (begin c
+  (begin d (begin e (begin f
+  (begin g (begin h (begin i j))))))))))

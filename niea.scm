@@ -19,7 +19,7 @@
 ;; <term> ::= <symbol>
 ;;          | (<term> <term>)
 ;;          | (lambda (<symbol>) <term>)
-;;          | <number>
+;;          | <number> | <string> | <char>
 ;;          | (if <term> <term> <term>)
 
 ;; Validator with errors
@@ -38,6 +38,7 @@
   (unless (or (symbol? t)
               (string? t)
               (number? t)
+              (char? t)
               (and (list? t)
                    (>= (length t) 1)
                    (all (lambda (tm) (valid-term? def tm)) t))
@@ -73,6 +74,7 @@
                     (error (list "Unbound variable:" e "in" def))))
                 ((number? e) '())
                 ((string? e) '())
+                ((char? e) '())
                 ((list? e) (for-each (lambda (e) (check-scope def e env))
                                      e))
                 (else #t)))))

@@ -22,6 +22,7 @@
                            (else e)))
         ((number? e) (compile-int e))
         ((string? e) (compile-string e box))
+        ((char? e) (compile-int (char->integer e)))
         ((list? e)
          (match e
            ((if pred then else) => (compile-if pred then else box))

@@ -1,0 +1,34 @@
+(define (cons x y)
+ (lambda (selector)
+  (selector x y)))
+(define (car c)
+ (c (lambda (x y) x)))
+(define (cdr c)
+ (c (lambda (x y) y)))
+
+(define (begin x y) y)
+
+(define (print-each list)
+ (if list
+     (begin (print (car list))
+            (print-each (cdr list)))
+     0))
+
+(define (map f l)
+ (if l
+     (cons (f (car l))
+           (map f (cdr l)))
+     0))
+
+(define (stuff)
+ (cons (cons #\h #\w)
+  (cons (cons #\e #\o)
+   (cons (cons #\l #\r)
+    (cons (cons #\l #\l)
+     (cons (cons #\o #\d)
+            0))))))
+
+(define (scm-main)
+ (begin (print-each (map car stuff))
+        (print-each (map cdr stuff))))
+

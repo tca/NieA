@@ -21,6 +21,7 @@
     (else (cond ((symbol? e) e)
                 ((number? e) e)
                 ((string? e) e)
+                ((char? e) e)
                 ((list? e) (map hoist-form e))))))
 
 (define (hoist p)

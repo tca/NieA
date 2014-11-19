@@ -42,6 +42,7 @@
                                  e)) ;; dont need to do anything
                 ((number? e) e)
                 ((string? e) e)
+                ((char? e) e)
                 ((list? e) (map (lambda (e) (scope-form e env renames)) e))))))
 
 (define (scope top-level1 p)

@@ -3,3 +3,8 @@ t3: passing functions around
 t4: recursion
 
 ufo0: higher order function
+ufo1: bracket matcher with stack
+ufo2: ..
+ufo3: church numerals
+ufo4: y combinator
+ufo5: self application

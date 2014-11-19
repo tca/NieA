@@ -1,0 +1,23 @@
+(define (cons x y)
+ (lambda (selector)
+  (selector x y)))
+(define (car c)
+ (c (lambda (x y) x)))
+(define (cdr c)
+ (c (lambda (x y) y)))
+
+(define (input) (cons 0 (cons 0 (cons 0 (cons 1 (cons 1 (cons 0 (cons 1 (cons 0 (cons 0 (cons 1 (cons 0 (cons 1 (cons 0 (cons 1 (cons 1 (cons 0 (cons 1 (cons 1 0)))))))))))))))))))
+
+(define (match stack l)
+ (if l
+     (if (car l)
+         (if stack
+             (match (cdr stack) (cdr l))
+             (print "too many closes fail"))
+         (match (cons 0 stack) (cdr l)))
+     (if stack
+         (print "too many opens fail")
+         (print "We did it!"))))
+
+(define (scm-main)
+ (match 0 (input)))

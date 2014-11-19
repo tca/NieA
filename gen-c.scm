@@ -96,7 +96,7 @@
   (define rsym (gensym "cls"))
   (compile-build-array
    sym
-   (cons `(make-struct (struct scm) (tag 1) (val.f ,fn)) env) box)
+   (cons `(make-struct (struct scm) (tag 1) (val.f ,fn)) (map (lambda (x) (gen-c-expr x box))env)) box)
   (push! box `(declare (struct scm) ,rsym))
   (push! box `(set! ,rsym (make-closure ,sym)))
   rsym)

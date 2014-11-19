@@ -90,7 +90,7 @@
                            (body (cadddr t)))
                        `(make-closure (lambda ,(cons env-variable-name bindings)
                                         ,(cc-term top-level def local-env body))
-                                      (vector . ,local-env))))
+                                      (vector . ,(map (lambda (t) (cc-term top-level def env t)) local-env)))))
            ((if) (let ((pred (cadr t))
                        (then (caddr t))
                        (else (cadddr t)))

@@ -80,6 +80,7 @@ struct scm scm_vector_ref(struct scm vec, struct scm idx) {
     int i;
     v = vec.val.v->elt;
     i = idx.val.i;
+    assert((i < vec.val.v->len));
     return v[i];
 }
 

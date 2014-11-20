@@ -74,6 +74,7 @@
   (declare int i)
   (set! v (struct->ref (struct-ref (struct-ref vec val) v) elt))
   (set! i (struct-ref (struct-ref idx val) i))
+  (assert (< i (struct->ref (struct-ref (struct-ref vec val) v) len)))
   (return (array-ref v i)))
 
 (define ((struct scm) scm-make-vector ((struct scm) len) ((struct scm) gen))

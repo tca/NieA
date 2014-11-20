@@ -33,43 +33,22 @@
       0
       (append (car lists) (concatenate (cdr lists)))))
 
-
-;; (define (sift-by comparator thing things)
-;;   (let loop ((to-process things)
-;;              (yes (list thing))
-;;              (no '()))
-;;     (if (null? to-process)
-;;         (values yes no)
-;;         (let ((this (car to-process)))
-;;           (if (comparator thing this)
-;;               (loop (cdr to-process) (cons this yes) no)
-;;               (loop (cdr to-process) yes (cons this no)))))))
-
-(define (sift-by-loop comparator to-process yes no cont)
+(define (sift-by-loop thing to-process yes no cont)
  (if (null? to-process)
      (cont yes no)
-     (if (comparator (car to-process))
-         (sift-by-loop (cdr to-process) (cons (car to-process) yes) no)
-         (sift-by-loop (cdr to-process) yes (cons (car to-process) no)))))
+     (if (comparator thing (car to-process))
+         (sift-by-loop thing (cdr to-process) (cons (car to-process) yes) no cont)
+         (sift-by-loop thing (cdr to-process) yes (cons (car to-process) no) cont))))
 
-(define (sift-by comparator thing things cont)
- (sift-by-loop comparator things (cons thing 0) 0 cont))
+(define (sift-by thing things cont)
+ (sift-by-loop thing things (cons thing 0) 0 cont))
 
-;; (define (group-by comparator things)
-;;   (if (null? things)
-;;       '()
-;;       (let ((x (car things)))
-;;         (call-with-values (lambda () (sift-by comparator x (cdr things)))
-;;           (lambda (ys zs)
-;;             (cons (cons x ys)
-;;                   (group-by comparator zs)))))))
-
-(define (group-by comparator things)
+(define (group-by things)
  (if (null? things)
      0
-     (sift-by comparator (car things) (cdr things)
+     (sift-by (car things) (cdr things)
        (lambda (ys zs)
-         (cons (cons (car things) ys) (group-by comparator zs))))))
+         (cons (cons (car things) ys) (group-by zs))))))
 
 (define (filter pred list)
   (if (null? list)
@@ -81,7 +60,7 @@
 (define (comparator x y) (= (car x) (car y)))
 (define (not-null? n) n)
 (define (merge sequences)
-  (map merge* (group-by comparator (filter not-null? sequences))))
+  (map merge* (group-by (filter not-null? sequences))))
 (define (merge* sequences)
   ;; invariant: all sequences have the same car
   (cons (car (car sequences))
@@ -98,6 +77,13 @@
 
 
 (define (scm-main)
- (print-each (filter (lambda (n) (> n 109))
-    (concatenate (map (lambda (w) (vector->list w 0)) (words))))))
-    
+ (go (merge (map (lambda (w) (vector->list w 0)) (words)))))
+
+(define (go tree)
+  (if tree
+      (og (car tree))
+      0))
+
+(define (og trees)
+ (begin (print (car trees))
+        (go (car (cdr trees)))))

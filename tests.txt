@@ -4,7 +4,11 @@ t4: recursion
 
 ufo0: higher order function
 ufo1: bracket matcher with stack
-ufo2: ..
+ufo2: count change
 ufo3: church numerals
 ufo4: y combinator
-ufo5: self application
+ufo5: self application, shadowing
+ufo6: int to church and church to int
+ufo7: simple test of all builtins
+ufo8: printing all types
+ufo9: more high order fun

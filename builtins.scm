@@ -11,7 +11,10 @@
     (+ (x y) . scm-plus)
     (- (x y) . scm-minus)
     (* (x y) . scm-multiply)
-    (/ (x y) . scm-divide)))
+    (/ (x y) . scm-divide)
+    (vector-ref (vec idx) . scm-vector-ref)
+    (make-vector (len gen) . scm-make-vector)
+    ))
 
 (define builtins (map (lambda (b) (list (car b) (map gensym (cadr b)) (gensym (cddr b)) (cddr b))) builtins1))
 

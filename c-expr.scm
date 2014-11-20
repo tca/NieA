@@ -210,6 +210,7 @@
                   (case khar
                     ((#\-) (string->list "_"))
                     ((#\>) (string->list "_to"))
+                    ((#\*) (string->list "_star"))
                     ((#\_) (string->list "_underscore"))
                     ((#\?) (string->list "_question"))
                     (else (list khar)))))

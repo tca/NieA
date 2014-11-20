@@ -1,0 +1,26 @@
+
+(define (count-change amount)
+  (cc amount 5))
+
+(define (or x y) (if x 1 y)) ;; strict!
+
+(define (cc amount kinds-of-coins)
+  (if (= amount 0) 1
+      (if (or (< amount 0) (= kinds-of-coins 0))
+          0
+          (+ (cc amount
+                 (- kinds-of-coins 1))
+             (cc (- amount
+                    (first-denomination kinds-of-coins))
+                 kinds-of-coins)))))
+
+(define (first-denomination kinds-of-coins)
+  (if (= kinds-of-coins 1) 1
+      (if (= kinds-of-coins 2) 5
+          (if (= kinds-of-coins 3) 10
+              (if (= kinds-of-coins 4) 25
+                  ;;(= kinds-of-coins 5)
+                  50)))))
+
+(define (scm-main)
+  (print (count-change 100)))

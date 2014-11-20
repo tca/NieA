@@ -90,7 +90,7 @@
   (set! elt (struct->ref (struct-ref (struct-ref v val) v) elt))
   (set! j 0)
   (while (< j n)
-         (set! (array-ref elt j) (fn j))
+         (set! (array-ref elt j) (fn gen (make-struct (struct scm) (tag 0) (val.i j))))
          (set! j (+ j 1)))
   (return v))
 

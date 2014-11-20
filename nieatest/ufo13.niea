@@ -48,7 +48,15 @@
                        (foo (map (lambda (c) (cons "0" c)) fwd)
                             (map (lambda (c) (cons "1" c)) bwd)
                             (- n 1))))))
-      (print "\n")))
+      (print-numbers (append l r) 0)))
+
+(define (print-numbers l n)
+  (if l
+      (begin (print "\n")
+             (begin (print n)
+                    (begin (for-each print (car l))
+                           (print-numbers (cdr l) (+ n 1)))))
+      0))
 
 
 (define (scm-main)

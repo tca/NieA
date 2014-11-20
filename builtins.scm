@@ -13,6 +13,7 @@
     (* (x y) . scm-multiply)
     (/ (x y) . scm-divide)
     (vector-ref (vec idx) . scm-vector-ref)
+    (vector-length (vec) . scm-vector-length)
     (make-vector (len gen) . scm-make-vector)
     ))
 

@@ -209,6 +209,7 @@
   (let ((escape (lambda (khar)
                   (case khar
                     ((#\-) (string->list "_"))
+                    ((#\>) (string->list "_to"))
                     ((#\_) (string->list "_underscore"))
                     ((#\?) (string->list "_question"))
                     (else (list khar)))))

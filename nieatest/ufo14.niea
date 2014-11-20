@@ -1,0 +1,103 @@
+(define (cons x y)
+ (lambda (selector)
+  (selector x y)))
+(define (car c)
+ (c (lambda (x y) x)))
+(define (cdr c)
+ (c (lambda (x y) y)))
+
+(define (words)
+ (cons "mother" (cons "in" (cons "law" (cons "woman" (cons "hitler" (cons "debit" (cons "card" (cons "bad" (cons "credit" (cons "school" (cons "master" (cons "the" (cons "classroom" (cons "eleven" (cons "plus" (cons "two" (cons "twelve" (cons "plus" (cons "one" (cons "dormitory" (cons "dirty" (cons "room" (cons "punishment" (cons "nine" (cons "thumps" (cons "the" (cons "morse" (cons "code" (cons "here" (cons "come" (cons "dots" (cons "a" (cons "decimal" (cons "point" (cons "im" (cons "a" (cons "dot" (cons "in" (cons "place" (cons "astronomer" (cons "moon" (cons "starer" (cons "the" (cons "eyes" (cons "they" (cons "see" 0)))))))))))))))))))))))))))))))))))))))))))))))
+
+(define (vector->list vec i)
+ (if (= i (vector-length vec))
+     0
+     (cons (vector-ref vec i)
+           (vector->list vec (+ i 1)))))
+
+(define (null? l) (if l 0 1))
+
+(define (map f l)
+ (if l
+     (cons (f (car l))
+           (map f (cdr l)))
+     0))
+
+(define (append x y)
+ (if (null? x)
+     y
+     (cons (car x) (append (cdr x) y))))
+
+(define (concatenate lists)
+  (if (null? lists)
+      0
+      (append (car lists) (concatenate (cdr lists)))))
+
+
+;; (define (sift-by comparator thing things)
+;;   (let loop ((to-process things)
+;;              (yes (list thing))
+;;              (no '()))
+;;     (if (null? to-process)
+;;         (values yes no)
+;;         (let ((this (car to-process)))
+;;           (if (comparator thing this)
+;;               (loop (cdr to-process) (cons this yes) no)
+;;               (loop (cdr to-process) yes (cons this no)))))))
+
+(define (sift-by-loop comparator to-process yes no cont)
+ (if (null? to-process)
+     (cont yes no)
+     (if (comparator (car to-process))
+         (sift-by-loop (cdr to-process) (cons (car to-process) yes) no)
+         (sift-by-loop (cdr to-process) yes (cons (car to-process) no)))))
+
+(define (sift-by comparator thing things cont)
+ (sift-by-loop comparator things (cons thing 0) 0 cont))
+
+;; (define (group-by comparator things)
+;;   (if (null? things)
+;;       '()
+;;       (let ((x (car things)))
+;;         (call-with-values (lambda () (sift-by comparator x (cdr things)))
+;;           (lambda (ys zs)
+;;             (cons (cons x ys)
+;;                   (group-by comparator zs)))))))
+
+(define (group-by comparator things)
+ (if (null? things)
+     0
+     (sift-by comparator (car things) (cdr things)
+       (lambda (ys zs)
+         (cons (cons (car things) ys) (group-by comparator zs))))))
+
+(define (filter pred list)
+  (if (null? list)
+      0
+      (if (pred (car list))
+          (cons (car list) (filter pred (cdr list)))
+          (filter pred (cdr list)))))
+
+(define (comparator x y) (= (car x) (car y)))
+(define (not-null? n) n)
+(define (merge sequences)
+  (map merge* (group-by comparator (filter not-null? sequences))))
+(define (merge* sequences)
+  ;; invariant: all sequences have the same car
+  (cons (car (car sequences))
+    (cons (merge (map cdr sequences)) 0)))
+
+
+(define (begin x y) y)
+
+(define (print-each list)
+ (if list
+     (begin (print (car list))
+            (print-each (cdr list)))
+     0))
+
+
+(define (scm-main)
+ (print-each (filter (lambda (n) (> n 109))
+    (concatenate (map (lambda (w) (vector->list w 0)) (words))))))
+    

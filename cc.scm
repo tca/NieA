@@ -26,7 +26,7 @@
      (call-with-values (lambda () (annotate-free-term top-level (car formals) (cdr formals) body))
        (lambda (free term)
          (unless (null? (set-remove free (cdr formals)))
-           (error "toplevel definition" (car formals) "has free variables!"))
+           (error "toplevel definition" (car formals) "has free variables!" (set-remove free (cdr formals))))
          `(define ,formals ,term))))
     (else (error (list "[impossible annotate] Not a valid definition at toplevel:" d)))))
 (define (annotate-free-term top-level def scope t)

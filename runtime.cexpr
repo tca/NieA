@@ -77,6 +77,13 @@
   (assert (< i (struct->ref (struct-ref (struct-ref vec val) v) len)))
   (return (array-ref v i)))
 
+(define ((struct scm) scm-vector-length ((struct scm) vec))
+  (assert (= (struct-ref vec tag) 2))
+  (declare (* (struct scm)) v)
+  (declare int i)
+  (set! i (struct->ref (struct-ref (struct-ref vec val) v) len))
+  (return (make-struct (struct scm) (tag 0) (val.i i))))
+
 (define ((struct scm) scm-make-vector ((struct scm) len) ((struct scm) gen))
   (assert (= (struct-ref len tag) 0))
   (assert (= (struct-ref gen tag) 3)) ;; closure

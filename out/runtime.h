@@ -84,6 +84,14 @@ struct scm scm_vector_ref(struct scm vec, struct scm idx) {
     return v[i];
 }
 
+struct scm scm_vector_length(struct scm vec) {
+    assert((vec.tag == 2));
+    struct scm* v;
+    int i;
+    i = vec.val.v->len;
+    return (struct scm){ .tag = 0, .val.i = i };
+}
+
 struct scm scm_make_vector(struct scm len, struct scm gen) {
     assert((len.tag == 0));
     assert((gen.tag == 3));

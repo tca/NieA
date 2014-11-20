@@ -28,7 +28,7 @@
                                  ,(scope-form then env renames)
                                  ,(scope-form else env renames)))
     ((lambda params body) =>
-       (let* ((inner-renames (list '()))
+       (let* ((inner-renames (list (car renames)))
               (body (scope-form body (append params env) inner-renames))
               (params (foo params (car inner-renames)))
               (lifts (foo2 env (car renames) (car inner-renames))))

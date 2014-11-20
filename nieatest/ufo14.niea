@@ -48,7 +48,8 @@
      0
      (sift-by (car things) (cdr things)
        (lambda (ys zs)
-         (cons (cons (car things) ys) (group-by zs))))))
+         (cons (cons (car things) ys)
+               (group-by zs))))))
 
 (define (filter pred list)
   (if (null? list)
@@ -64,7 +65,8 @@
 (define (merge* sequences)
   ;; invariant: all sequences have the same car
   (cons (car (car sequences))
-    (cons (merge (map cdr sequences)) 0)))
+        (cons (merge (map cdr sequences))
+              0)))
 
 
 (define (begin x y) y)
@@ -75,15 +77,32 @@
             (print-each (cdr list)))
      0))
 
+(define (length l)
+ (if l (+ 1 (length (cdr l))) 0))
+(define (list-ref l i)
+ (if i (list-ref (cdr l) (- i 1)) (car l)))
+(define (list->vector l)
+ (make-vector (length l) (lambda (i) (list-ref l i))))
+
+(define (print-each-word list)
+ (if list
+     (begin (begin (print (list->vector (car list)))
+                   (print "\n"))
+            (print-each-word (cdr list)))
+     0))
 
 (define (scm-main)
- (go (merge (map (lambda (w) (vector->list w 0)) (words)))))
+ (print-each-word
+  (og (merge (map (lambda (w) (vector->list w 0)) (words))))))
 
 (define (go tree)
-  (if tree
-      (og (car tree))
-      0))
+  (map (lambda (ord) (cons (car tree) ord))
+       (og (car (cdr tree)))))
 
 (define (og trees)
- (begin (print (car trees))
-        (go (car (cdr trees)))))
+ (if trees
+     (concat-map go trees)
+     (cons 0 0)))
+
+(define (concat-map f l)
+ (concatenate (map f l)))

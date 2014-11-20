@@ -1,0 +1,55 @@
+
+(define (cons x y)
+ (lambda (selector)
+  (selector x y)))
+(define (car c)
+ (c (lambda (x y) x)))
+(define (cdr c)
+ (c (lambda (x y) y)))
+
+(define (begin a b) b)
+
+(define (for-each f l)
+  (if l
+      (begin (f (car l))
+             (for-each f (cdr l)))
+      0))
+
+(define (map f l)
+  (if l
+      (cons (f (car l))
+            (map f (cdr l)))
+      0))
+
+
+(define (append a b)
+  (if a
+      (cons (car a) (append (cdr a) b))
+      b))
+
+(define (reverse-aux ls o)
+  (if ls
+      (reverse-aux (cdr ls) (cons (car ls) o))
+      o))
+
+(define (reverse ls)
+  (reverse-aux ls 0))
+
+(define (forward-backwards l-r k)
+  (k l-r (reverse l-r)))
+
+(define (foo l r n)
+  (if n
+      (forward-backwards
+       (append l r)
+       (lambda (fwd bwd)
+         (begin (for-each (lambda (c) (for-each print c)) fwd)
+                (begin (print "\n")
+                       (foo (map (lambda (c) (cons "0" c)) fwd)
+                            (map (lambda (c) (cons "1" c)) bwd)
+                            (- n 1))))))
+      (print "\n")))
+
+
+(define (scm-main)
+  (foo (cons (cons "0" 0) 0) (cons (cons "1" 0) 0) 4))

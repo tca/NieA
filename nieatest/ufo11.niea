@@ -20,34 +20,25 @@
             (map f (cdr l)))
       0))
 
-(define (print-each list)
- (if list
-     (begin (print (car list))
-            (print-each (cdr list)))
-     0))
-
 (define (append a b)
   (if a
-      (append (cdr a) (cons (car a) b))
+      (cons (car a) (append (cdr a)  b))
       b))
+
+(define (loop acc spaces n)
+  (if n
+      (loop
+       (append
+        (map (lambda (x) (append spaces (append x spaces))) acc)
+        (map (lambda (x) (append x (append (cons " " 0) x))) acc))
+       (append spaces spaces)
+       (- n 1))
+      acc))
 
 (define (sierpinski n)
   (for-each
-   (lambda (x) (begin (print-each x) (print "\n")))
-   ((lambda (loop)
-      (loop loop (cons (cons "*" 0) 0) (cons " " 0) n))
-    (lambda (loop acc spaces n)
-      (if n
-          (loop
-           loop
-           (append
-            (map (lambda (x) (append spaces (append x spaces))) acc)
-            (map (lambda (x) (append x (append (cons " " 0) x))) acc))
-           (append spaces spaces)
-           (- n 1))
-          acc)))))
-      
-     
+   (lambda (x) (begin (for-each print x) (print "\n")))
+   (loop (cons (cons "*" 0) 0) (cons " " 0) n)))
 
 (define (scm-main)
-  (sierpinski 5))
+  (sierpinski 4))

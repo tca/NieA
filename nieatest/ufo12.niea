@@ -1,0 +1,51 @@
+(define (hash) #\#)
+(define (space) #\space)
+(define (classify chr)
+ (if (= chr (hash))
+     1
+     0))
+
+(define (not x)
+ (if x 0 1))
+(define (or a b)
+ (if a 1 b))
+
+(define (rule-30 a b c)
+  (if
+     (if a
+        (not (or b c))
+        (if b
+            (not a)
+           (if c (not (or a b)) 0)))
+     (hash)
+     (space)))
+
+(define (next vec len)
+ (lambda (i)
+  (rule-30 (if (= i 0) 0 (classify (vector-ref vec (- i 1))))
+           (classify (vector-ref vec i))
+           (if (= i (- len 1)) 0
+               (classify (vector-ref vec (+ i 1)))))))
+
+(define (size) 60)
+
+(define (initial-condition)
+ (make-vector (size) (lambda (i)
+    (if (= i (/ (size) 2))
+        (hash)
+        (space)))))
+
+(define (begin x y) y)
+
+(define (print-line l)
+ (begin (print l)
+        (print "\n")))
+
+(define (do-times n state)
+ (begin (print-line state)
+   (if (= n 0)
+       0
+       (do-times (- n 1) (make-vector (size) (next state (size)))))))
+
+(define (scm-main)
+ (do-times (size) (initial-condition)))

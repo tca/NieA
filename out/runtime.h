@@ -83,6 +83,26 @@ struct scm scm_vector_ref(struct scm vec, struct scm idx) {
     return v[i];
 }
 
+struct scm scm_make_vector(struct scm len, struct scm gen) {
+    assert((len.tag == 0));
+    assert((gen.tag == 3));
+    struct scm v;
+    int j;
+    int n;
+    scm_fptr fn;
+    struct scm* elt;
+    fn = gen.val.v->elt[0].val.f;
+    n = len.val.i;
+    v = allocate_vector(n);
+    elt = v.val.v->elt;
+    j = 0;
+    while ((j < n)) {
+        elt[j] = fn(gen, (struct scm){ .tag = 0, .val.i = j });
+        j = (j + 1);
+    }
+    return v;
+}
+
 struct scm scm_plus(struct scm a, struct scm b) {
     assert((a.tag == 0));
     assert((b.tag == 0));

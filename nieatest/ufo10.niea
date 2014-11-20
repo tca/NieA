@@ -1,0 +1,5 @@
+
+
+(define (scm-main)
+ (print (make-vector 5 (lambda (i)
+                           (vector-ref "Hello world" i)))))

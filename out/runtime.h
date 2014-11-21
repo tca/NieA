@@ -32,6 +32,25 @@ void refcount_dec(struct scm s) {
     }
 }
 
+void refcount_inc(struct scm s) {
+    int i;
+    struct scm_vector* v;
+    if (((2 == s.tag) || (3 == s.tag))) {
+        v = s.val.v;
+        v->ref = (v->ref + 1);
+        if ((0 == v->ref)) {
+            i = 0;
+            while ((i < v->len)) {
+                i = (i + 1);
+                refcount_inc(v->elt[i]);
+            }
+            free(v->elt);
+        } else {
+        }
+    } else {
+    }
+}
+
 struct scm allocate_vector(int len) {
     struct scm_vector* v;
     v = malloc(sizeof(struct scm_vector));

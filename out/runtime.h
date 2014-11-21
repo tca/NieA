@@ -13,6 +13,25 @@ struct scm {
     int tag;
     union scm_value val;
 };
+void scm_memory_trace() {
+    fprintf(stderr, "%d %d\n", scm_time, scm_memory_used);
+    return;
+}
+
+void scm_free(int size, void* p) {
+    scm_time = (scm_time + 1);
+    scm_memory_used = (scm_memory_used - size);
+    scm_memory_trace();
+    free(p);
+}
+
+void* scm_malloc(int size) {
+    scm_time = (scm_time + 1);
+    scm_memory_used = (scm_memory_used + size);
+    scm_memory_trace();
+    return malloc(size);
+}
+
 void refcount_dec(struct scm s) {
     int i;
     struct scm_vector* v;
@@ -25,7 +44,9 @@ void refcount_dec(struct scm s) {
                 i = (i + 1);
                 refcount_dec(v->elt[i]);
             }
-            free(v->elt);
+            scm_free((sizeof(struct scm) * v->len), v->elt);
+            v->elt = NULL;
+            v->len = 99999;
         } else {
         }
     } else {
@@ -44,7 +65,6 @@ void refcount_inc(struct scm s) {
                 i = (i + 1);
                 refcount_inc(v->elt[i]);
             }
-            free(v->elt);
         } else {
         }
     } else {
@@ -53,10 +73,10 @@ void refcount_inc(struct scm s) {
 
 struct scm allocate_vector(int len) {
     struct scm_vector* v;
-    v = malloc(sizeof(struct scm_vector));
+    v = scm_malloc(sizeof(struct scm_vector));
     v->len = len;
     v->ref = 1;
-    v->elt = malloc((sizeof(struct scm) * len));
+    v->elt = scm_malloc((sizeof(struct scm) * len));
     return (struct scm){ .tag = 2, .val.v = v };
 }
 

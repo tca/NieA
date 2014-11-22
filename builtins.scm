@@ -15,6 +15,7 @@
     (vector-ref (vec idx) . scm-vector-ref)
     (vector-length (vec) . scm-vector-length)
     (make-vector (len gen) . scm-make-vector)
+    (boole (b t e) . scm-boole)
     ))
 
 (define builtins (map (lambda (b) (list (car b) (map gensym (cadr b)) (gensym (cddr b)) (cddr b))) builtins1))

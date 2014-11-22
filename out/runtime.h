@@ -151,6 +151,20 @@ struct scm scm_make_vector(struct scm len, struct scm gen) {
     return v;
 }
 
+struct scm scm_boole(struct scm b, struct scm t, struct scm e) {
+    assert((t.tag == 3));
+    assert((e.tag == 3));
+    struct scm branch;
+    scm_fptr fn;
+    if (((b.tag == 0) && (0 == b.val.i))) {
+        branch = e;
+    } else {
+        branch = t;
+    }
+    fn = branch.val.v->elt[0].val.f;
+    return fn(branch, (struct scm){ .tag = 0, .val.i = 0 });
+}
+
 struct scm scm_plus(struct scm a, struct scm b) {
     assert((a.tag == 0));
     assert((b.tag == 0));

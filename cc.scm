@@ -47,17 +47,29 @@
                          (lambda (free body)
                            (let ((frees (set-remove free bindings)))
                              (values frees `(lambda ,frees ,bindings ,body)))))))
-           ((if) (let ((pred (cadr t))
-                       (then (caddr t))
-                       (else (cadddr t)))
-                   (call-with-values (lambda () (annotate-free-term top-level def scope pred))
-                     (lambda (pred-free pred-term)
-                       (call-with-values (lambda () (annotate-free-term top-level def scope then))
-                         (lambda (then-free then-term)
-                           (call-with-values (lambda () (annotate-free-term top-level def scope else))
-                             (lambda (else-free else-term)
-                               (values (set-union* (list pred-free then-free else-free))
-                                       `(if ,pred-term ,then-term ,else-term))))))))))
+
+           ((if)
+            (let ((pred (cadr t))
+                  (then (caddr t))
+                  (else (cadddr t)))
+              (let ((g (gensym "ignored")))
+                (annotate-free-term top-level def scope
+                                    `(boole ,pred
+                                            (lambda (,g) ,then)
+                                            (lambda (,g) ,else))))))
+
+           ;; ((if) (let ((pred (cadr t))
+           ;;             (then (caddr t))
+           ;;             (else (cadddr t)))
+           ;;         (call-with-values (lambda () (annotate-free-term top-level def scope pred))
+           ;;           (lambda (pred-free pred-term)
+           ;;             (call-with-values (lambda () (annotate-free-term top-level def scope then))
+           ;;               (lambda (then-free then-term)
+           ;;                 (call-with-values (lambda () (annotate-free-term top-level def scope else))
+           ;;                   (lambda (else-free else-term)
+           ;;                     (values (set-union* (list pred-free then-free else-free))
+           ;;                             `(if ,pred-term ,then-term ,else-term))))))))))
+           
            (else (let loop ((frees '())
                             (terms '())
                             (in-terms t))
@@ -91,11 +103,11 @@
                        `(make-closure (lambda ,(cons env-variable-name bindings)
                                         ,(cc-term top-level def local-env body))
                                       (vector . ,(map (lambda (t) (cc-term top-level def env t)) local-env)))))
-           ((if) (let ((pred (cadr t))
-                       (then (caddr t))
-                       (else (cadddr t)))
-                   (let ((r (lambda (t) (cc-term top-level def env t))))
-                     `(if ,(r pred) ,(r then) ,(r else)))))
+
+           ((if) (error "if doesn't eixt"))
+
+
+           
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
                    (if (symbol? (car t))
                        (cond ((member (car t) top-level) (cons 'invoke-toplevel (map r t)))

@@ -135,6 +135,18 @@
          (set! j (+ j 1)))
   (return v))
 
+(define ((struct scm) scm-boole ((struct scm) b) ((struct scm) t) ((struct scm) e))
+  (assert (= (struct-ref t tag) 3))
+  (assert (= (struct-ref e tag) 3))
+  (declare (struct scm) branch)
+  (declare (type scm-fptr) fn)
+  (if (&& (= (struct-ref b tag) 0)
+          (= 0 (struct-ref (struct-ref b val) i)))
+      (set! branch e)
+      (set! branch t))
+  (set! fn (struct-ref (struct-ref (array-ref (struct->ref (struct-ref (struct-ref branch val) v) elt) 0) val) f))
+  (return (fn branch (make-struct (struct scm) (tag 0) (val.i 0)))))
+
 (define ((struct scm) scm-plus ((struct scm) a) ((struct scm) b))
   (assert (= (struct-ref a tag) 0))
   (assert (= (struct-ref b tag) 0))

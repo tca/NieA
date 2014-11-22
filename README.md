@@ -43,14 +43,13 @@ You're handing over a reference to the caller when you return something.
 
 ```
 (define (k x y)
+  (set! result x)
   (dec y)
-  (return x))
+  (return result))
 
 (define (s x y z)
   (inc z)
   (set! result ((x z)
                 (y z)))
-  (dec x)
-  (dec y)
   (return result))
 ```

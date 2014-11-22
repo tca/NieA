@@ -107,7 +107,7 @@
                        <else>)))
     ((match t (<pat> => <body>) ...)
      (match t (<pat> => <body>) ...
-            (else (error "pattern match fell through"))))))
+            (else (error (list "pattern match fell through" t)))))))
 
 (define-syntax match-expander
   (er-macro-transformer match-expander-er))

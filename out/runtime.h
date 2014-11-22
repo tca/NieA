@@ -59,14 +59,16 @@ void refcount_inc(struct scm s) {
     if (((2 == s.tag) || (3 == s.tag))) {
         v = s.val.v;
         v->ref = (v->ref + 1);
-        if ((0 == v->ref)) {
-            i = 0;
-            while ((i < v->len)) {
-                i = (i + 1);
-                refcount_inc(v->elt[i]);
-            }
-        } else {
-        }
+    } else {
+    }
+}
+
+void refcount_inc_star(struct scm s, int n) {
+    int i;
+    struct scm_vector* v;
+    if (((2 == s.tag) || (3 == s.tag))) {
+        v = s.val.v;
+        v->ref = (v->ref + n);
     } else {
     }
 }

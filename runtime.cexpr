@@ -59,13 +59,16 @@
   (if (\|\| (= 2 (struct-ref s tag)) ;; vector
             (= 3 (struct-ref s tag))) ;; closure
       (begin (set! v (struct-ref (struct-ref s val) v))
-             (set! (struct->ref v ref) (+ (struct->ref v ref) 1))
-             (if (= 0 (struct->ref v ref))
-                 (begin (set! i 0)
-                        (while (< i (struct->ref v len))
-                               (set! i (+ i 1))
-                               (refcount-inc (array-ref (struct->ref v elt) i))))
-                 (begin)))
+             (set! (struct->ref v ref) (+ (struct->ref v ref) 1)))
+      (begin)))
+
+(define (void refcount-inc* ((struct scm) s) (int n))
+  (declare int i)
+  (declare (* (struct scm-vector)) v)
+  (if (\|\| (= 2 (struct-ref s tag)) ;; vector
+            (= 3 (struct-ref s tag))) ;; closure
+      (begin (set! v (struct-ref (struct-ref s val) v))
+             (set! (struct->ref v ref) (+ (struct->ref v ref) n)))
       (begin)))
 
 (define ((struct scm) allocate-vector (int len))

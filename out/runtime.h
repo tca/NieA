@@ -108,6 +108,7 @@ struct scm scm_print(struct scm a) {
             putchar('?');
         }
     }
+    refcount_dec(a);
 }
 
 int scm_extract_truth(struct scm x) {
@@ -119,18 +120,24 @@ struct scm scm_vector_ref(struct scm vec, struct scm idx) {
     assert((idx.tag == 0));
     struct scm* v;
     int i;
+    struct scm ret;
     v = vec.val.v->elt;
     i = idx.val.i;
     assert((i < vec.val.v->len));
-    return v[i];
+    ret = v[i];
+    refcount_dec(vec);
+    return ret;
 }
 
 struct scm scm_vector_length(struct scm vec) {
     assert((vec.tag == 2));
     struct scm* v;
     int i;
+    struct scm ret;
     i = vec.val.v->len;
-    return (struct scm){ .tag = 0, .val.i = i };
+    ret = (struct scm){ .tag = 0, .val.i = i };
+    refcount_dec(vec);
+    return ret;
 }
 
 struct scm scm_make_vector(struct scm len, struct scm gen) {
@@ -157,6 +164,7 @@ struct scm scm_boole(struct scm b, struct scm t, struct scm e) {
     assert((t.tag == 3));
     assert((e.tag == 3));
     struct scm branch;
+    struct scm ret;
     scm_fptr fn;
     if (((b.tag == 0) && (0 == b.val.i))) {
         branch = e;
@@ -164,7 +172,10 @@ struct scm scm_boole(struct scm b, struct scm t, struct scm e) {
         branch = t;
     }
     fn = branch.val.v->elt[0].val.f;
-    return fn(branch, (struct scm){ .tag = 0, .val.i = 0 });
+    ret = fn(branch, (struct scm){ .tag = 0, .val.i = 0 });
+    refcount_dec(t);
+    refcount_dec(e);
+    return ret;
 }
 
 struct scm scm_plus(struct scm a, struct scm b) {

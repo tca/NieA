@@ -32,9 +32,9 @@
 (define (annotate-free-term top-level def scope t)
   (cond ((symbol? t) (cond ((assoc t builtins) =>
                             (lambda (found)
-                              (values '() (cadddr found))))
+                              (values '() `(scm-wrap-fptr ,(cadddr found)))))
                            ((member t top-level)
-                            (values '() t))
+                            (values '() `(scm-wrap-fptr ,t)))
                            (else (values (list t) t))))
         ((number? t) (values '() t))
         ((string? t) (values '() t))
@@ -48,27 +48,27 @@
                            (let ((frees (set-remove free bindings)))
                              (values frees `(lambda ,frees ,bindings ,body)))))))
 
-           ((if)
-            (let ((pred (cadr t))
-                  (then (caddr t))
-                  (else (cadddr t)))
-              (let ((g (gensym "ignored")))
-                (annotate-free-term top-level def scope
-                                    `(boole ,pred
-                                            (lambda (,g) ,then)
-                                            (lambda (,g) ,else))))))
+           ;; ((if)
+           ;;  (let ((pred (cadr t))
+           ;;        (then (caddr t))
+           ;;        (else (cadddr t)))
+           ;;    (let ((g (gensym "ignored")))
+           ;;      (annotate-free-term top-level def scope
+           ;;                          `(boole ,pred
+           ;;                                  (lambda (,g) ,then)
+           ;;                                  (lambda (,g) ,else))))))
 
-           ;; ((if) (let ((pred (cadr t))
-           ;;             (then (caddr t))
-           ;;             (else (cadddr t)))
-           ;;         (call-with-values (lambda () (annotate-free-term top-level def scope pred))
-           ;;           (lambda (pred-free pred-term)
-           ;;             (call-with-values (lambda () (annotate-free-term top-level def scope then))
-           ;;               (lambda (then-free then-term)
-           ;;                 (call-with-values (lambda () (annotate-free-term top-level def scope else))
-           ;;                   (lambda (else-free else-term)
-           ;;                     (values (set-union* (list pred-free then-free else-free))
-           ;;                             `(if ,pred-term ,then-term ,else-term))))))))))
+           ((if) (let ((pred (cadr t))
+                       (then (caddr t))
+                       (else (cadddr t)))
+                   (call-with-values (lambda () (annotate-free-term top-level def scope pred))
+                     (lambda (pred-free pred-term)
+                       (call-with-values (lambda () (annotate-free-term top-level def scope then))
+                         (lambda (then-free then-term)
+                           (call-with-values (lambda () (annotate-free-term top-level def scope else))
+                             (lambda (else-free else-term)
+                               (values (set-union* (list pred-free then-free else-free))
+                                       `(if ,pred-term ,then-term ,else-term))))))))))
            
            (else (let loop ((frees '())
                             (terms '())
@@ -90,7 +90,7 @@
     (else (error (list "[impossible cc] Not a valid definition at toplevel:" d)))))
 (define (cc-term top-level def env t)
   (cond ((symbol? t)
-         (cond ((list-index t env) => (lambda (i) `(vector-ref ,env-variable-name ,(+ 1 i))))
+         (cond ((list-index t env) => (lambda (i) `(scm-vector-ref ,env-variable-name ,i)))
                (else t)))
         ((number? t) t)
         ((string? t) t)
@@ -104,14 +104,17 @@
                                         ,(cc-term top-level def local-env body))
                                       (vector . ,(map (lambda (t) (cc-term top-level def env t)) local-env)))))
 
-           ((if) (error "if doesn't eixt"))
+           ((scm-wrap-fptr) t)
+           ((if) `(if ,(cc-term top-level def env (cadr t))
+                      ,(cc-term top-level def env (caddr t))
+                      ,(cc-term top-level def env (cadddr t))))
 
 
            
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
                    (if (symbol? (car t))
-                       (cond ((member (car t) top-level) (cons 'invoke-toplevel (map r t)))
-                             ((member (car t) (map cadddr builtins)) (cons 'invoke-builtin (map r t)))
+                       (cond ((member (car t) top-level) (map r t))
+                             ((member (car t) (map cadddr builtins)) (map r t))
                              (else (cons 'invoke-closure (map r t))))
                              
                        (cons 'invoke-closure (map r t)))))))
@@ -119,7 +122,7 @@
 
 
 (define (perform-cc top-level program)
-  (let ((program (append builtin-wrappers program)))
+  (let ((program program))
     (set! env-variable-name (gensym 'env))
     (cc-program top-level (annotate-free-program top-level program))))
 

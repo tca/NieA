@@ -1,7 +1,7 @@
 (module gen-c (gen-c)
 (import chicken scheme)
 (import pat)
-(import builtins autoref)
+(import builtins)
 
 (define top-level '())
 
@@ -110,7 +110,7 @@
         (retsym (gensym "return")))
     (let* ((incs (foldr (lambda (p m)
                           (if (> (cdr p) 1)
-                              (cons `(refcount-inc* ,(car p) ,(cdr p)) m)
+                              (cons `(refcount-inc* ,(car p) ,(- (cdr p) 1)) m)
                               m))
                         '() table))
            (c-body (gen-c-expr body box table)))

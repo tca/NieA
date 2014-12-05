@@ -1,0 +1,33 @@
+(define (cons env2498 x y) (make-closure g2499 (vector y x)))
+(define (car env2498 c) (invoke-closure c (make-closure g2500 (vector))))
+(define (cdr env2498 c) (invoke-closure c (make-closure g2501 (vector c))))
+(define (begin env2498 x y) y)
+(define (print-each env2498 list)
+  (if list
+    (invoke-closure
+      (scm-wrap-fptr begin)
+      (invoke-closure
+        (scm-wrap-fptr scm-print)
+        (invoke-closure (scm-wrap-fptr car) list))
+      (invoke-closure
+        (scm-wrap-fptr print-each)
+        (invoke-closure (scm-wrap-fptr cdr) list)))
+    0))
+(define (scm-main env2498)
+  (invoke-closure
+    (scm-wrap-fptr print-each)
+    (invoke-closure
+      (scm-wrap-fptr cons)
+      "Hello"
+      (invoke-closure
+        (scm-wrap-fptr cons)
+        "World"
+        (invoke-closure (scm-wrap-fptr cons) "!" 0)))))
+(define (g2501 env2498 x y) (scm-vector-ref env2498 0))
+(define (g2500 env2498 x y) x)
+(define (g2499 env2498 selector)
+  (invoke-closure
+    selector
+    (scm-vector-ref env2498 1)
+    (scm-vector-ref env2498 0)))
+

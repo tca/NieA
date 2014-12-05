@@ -1,0 +1,7 @@
+(define (scm-main env2498)
+  (invoke-closure
+    (invoke-closure (make-closure g2500 (vector)) (scm-wrap-fptr scm-print))
+    "a"))
+(define (g2500 env2498 x) (make-closure g2499 (vector x)))
+(define (g2499 env2498 y) (invoke-closure (scm-vector-ref env2498 0) y))
+

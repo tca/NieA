@@ -1,0 +1,2 @@
+(define (scm-main env2498) (invoke-closure (scm-wrap-fptr scm-print) 1729))
+

@@ -90,7 +90,7 @@
     (else (error (list "[impossible cc] Not a valid definition at toplevel:" d)))))
 (define (cc-term top-level def env t)
   (cond ((symbol? t)
-         (cond ((list-index t env) => (lambda (i) `(scm-vector-ref ,env-variable-name ,i)))
+         (cond ((list-index t env) => (lambda (i) `(scm-vector-ref 0 ,env-variable-name ,i))) ;; 0 is a dummy env
                (else t)))
         ((number? t) t)
         ((string? t) t)
@@ -113,8 +113,18 @@
            
            (else (let ((r (lambda (t) (cc-term top-level def env t))))
                    (if (symbol? (car t))
-                       (cond ((member (car t) top-level) (map r t))
-                             ((member (car t) (map cadddr builtins)) (map r t))
+                       (cond ((member (car t) top-level)
+                              (error "never happens")
+                              (cons (car t)
+                                    (cons 0 ;; dummy env
+                                          (map r (cdr t))))
+                              ;;(map r t)
+                              )
+                             ((member (car t) (map cadddr builtins))
+                              (error "never")
+                              (cons (car t)
+                                    (cons 0 ;; dummy env
+                                          (map r (cdr t)))))
                              (else (cons 'invoke-closure (map r t))))
                              
                        (cons 'invoke-closure (map r t)))))))
